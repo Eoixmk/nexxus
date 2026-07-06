@@ -12,7 +12,7 @@ const { user, isLoggedIn, logout } = useAuth()
         </NuxtLink>
 
         <div v-if="isLoggedIn" class="flex items-center gap-3">
-          <span class="hidden text-sm text-muted sm:inline">{{ user?.email }}</span>
+          <span class="hidden text-sm text-muted sm:inline">{{ user?.username }}</span>
           <UButton
             color="neutral"
             variant="ghost"

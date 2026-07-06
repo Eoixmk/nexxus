@@ -1,0 +1,86 @@
+import type { AuthLoginRequest, AuthLoginResponse, AuthSession } from '~/shared/types/auth.types'
+
+export type { AuthUser, AuthOrganization, AuthCompany, AuthSession } from '~/shared/types/auth.types'
+
+export function useAuth() {
+  const apiBaseUrl = useApiBaseUrl()
+  const { public: { apiAuthPath, apiAuthLogoutPath } } = useRuntimeConfig()
+
+  const session = useCookie<AuthSession | null>('auth_session', {
+    default: () => null,
+    sameSite: 'lax',
+  })
+
+  const user = computed(() => session.value?.user ?? null)
+  const organization = computed(() => session.value?.organization ?? null)
+  const token = computed(() => session.value?.token ?? null)
+  const isLoggedIn = computed(() => session.value?.token != null)
+
+  async function login(username: string, password: string) {
+    const body: AuthLoginRequest = {
+      username,
+      password,
+    }
+
+    try {
+      const data = await $fetch<AuthLoginResponse>(apiAuthPath as string, {
+        baseURL: apiBaseUrl,
+        method: 'POST',
+        body,
+      })
+
+      session.value = {
+        token: data.token,
+        user: data.user,
+        organization: data.organization,
+      }
+    } catch (error) {
+      throw new Error(getFetchErrorMessage(error, 'No se pudo iniciar sesión'))
+    }
+  }
+
+  async function logout() {
+    try {
+      if (token.value) {
+        await $fetch(apiAuthLogoutPath as string, {
+          baseURL: apiBaseUrl,
+          method: 'POST',
+          headers: {
+            Authorization: `Token ${token.value}`,
+          },
+        })
+      }
+    } catch {
+      // Si el backend falla, igual cerramos la sesión local.
+    } finally {
+      session.value = null
+      await navigateTo('/login')
+    }
+  }
+
+  function authFetch<T>(url: string, options: Parameters<typeof $fetch<T>>[1] = {}) {
+    if (!token.value) {
+      throw new Error('No hay sesión activa')
+    }
+
+    return $fetch<T>(url, {
+      ...options,
+      baseURL: apiBaseUrl,
+      headers: {
+        Authorization: `Token ${token.value}`,
+        ...options.headers,
+      },
+    })
+  }
+
+  return {
+    session,
+    user,
+    organization,
+    token,
+    isLoggedIn,
+    login,
+    logout,
+    authFetch,
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Enter your credentials to continue",
+      "email": "Email",
+      "emailPlaceholder": "you{'@'}email.com",
+      "password": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "welcome": "Welcome",
+      "errorTitle": "Could not sign in",
+      "errorDescription": "Check your credentials"
+    },
+    "validation": {
+      "invalidEmail": "Invalid email",
+      "passwordMin": "Minimum 6 characters"
+    }
+  }
+}

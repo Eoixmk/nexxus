@@ -1,91 +1,127 @@
 <script setup lang="ts">
-import * as v from 'valibot'
-import type { FormSubmitEvent } from '@nuxt/ui'
+import { useMutation } from '@tanstack/vue-query'
+import type { AuthFormField, FormSubmitEvent } from '@nuxt/ui'
 
-definePageMeta({ layout: 'auth' })
-
+const { t } = useI18n({ useScope: 'local' })
 const { login, isLoggedIn } = useAuth()
 const route = useRoute()
-const toast = useToast()
 
-// If already logged in, don't show the login form.
 if (isLoggedIn.value) {
   await navigateTo('/')
 }
 
-const schema = v.object({
-  email: v.pipe(v.string(), v.email('Correo inválido')),
-  password: v.pipe(v.string(), v.minLength(6, 'Mínimo 6 caracteres')),
-})
-type Schema = v.InferOutput<typeof schema>
+const schema = computed(() =>
+  z.object({
+    username: z.string({ error: t('validation_username') }).min(1, t('validation_username')),
+    password: z.string({ error: t('validation_password') }).min(1, t('validation_password')),
+  }),
+)
 
-const state = reactive({
-  email: '',
-  password: '',
-})
-
-const loading = ref(false)
-
-async function onSubmit(event: FormSubmitEvent<Schema>) {
-  loading.value = true
-  try {
-    await login(event.data.email, event.data.password)
-    toast.add({ title: 'Bienvenido', color: 'success' })
-    // Send the user back to where they were headed, or home.
-    const redirect = (route.query.redirect as string) || '/'
-    await navigateTo(redirect)
-  } catch (err) {
-    toast.add({
-      title: 'No se pudo iniciar sesión',
-      description: err instanceof Error ? err.message : 'Verifica tus credenciales',
-      color: 'error',
-    })
-  } finally {
-    loading.value = false
+const { mutateAsync, isError, isPending, error } = useMutation<
+  unknown,
+  unknown,
+  {
+    username: string
+    password: string
   }
+>({
+  mutationFn: variables => login(variables.username, variables.password),
+})
+
+const loginErrorMessage = computed(() =>
+  error.value != null ? parseFetchError(error.value) : '',
+)
+
+const fields = computed<AuthFormField[]>(() => [
+  {
+    name: 'username',
+    type: 'text',
+    label: t('field_username'),
+    required: true,
+  },
+  {
+    name: 'password',
+    type: 'password',
+    label: t('field_password'),
+    required: true,
+  },
+])
+
+const onSubmit = async (
+  event: FormSubmitEvent<{ username: string, password: string }>,
+) => {
+  await mutateAsync(event.data)
+  const redirect = (route.query.redirect as string) || '/'
+  await navigateTo(redirect)
 }
+
+definePageMeta({
+  layout: false,
+})
+
+useSeoMeta({
+  title: computed(() => t('title')),
+})
 </script>
 
 <template>
-  <UCard class="w-full max-w-sm">
-    <template #header>
-      <div class="flex flex-col items-center gap-2 text-center">
-        <UIcon name="i-lucide-hexagon" class="size-8 text-primary" />
-        <h1 class="text-lg font-semibold">Iniciar sesión</h1>
-        <p class="text-sm text-muted">Ingresa tus credenciales para continuar</p>
-      </div>
-    </template>
+  <UContainer
+    class="flex flex-col lg:flex-row h-screen relative p-0 overflow-hidden"
+  >
+    <div class="flex-1/2 w-full p-4 flex flex-col">
+      <header class="flex items-center justify-end">
+        <UColorModeButton />
+      </header>
 
-    <UForm :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
-      <UFormField label="Correo" name="email">
-        <UInput
-          v-model="state.email"
-          type="email"
-          placeholder="tu@correo.com"
-          icon="i-lucide-mail"
-          autocomplete="email"
-          class="w-full"
-        />
-      </UFormField>
+      <UAuthForm
+        class="max-w-lg mx-auto w-full h-full flex flex-col justify-center"
+        :schema="schema"
+        :fields="fields"
+        :loading="isPending"
+        @submit="onSubmit"
+      >
+        <template #header>
+          <header class="grid gap-2">
+            <NexxusLogo class="w-40" />
+            <h1 class="text-left font-medium text-lg">
+              {{ t('title') }}
+            </h1>
+            <p class="text-left text-muted">
+              {{ t('tagline') }}
+            </p>
+          </header>
+        </template>
 
-      <UFormField label="Contraseña" name="password">
-        <UInput
-          v-model="state.password"
-          type="password"
-          placeholder="••••••••"
-          icon="i-lucide-lock"
-          autocomplete="current-password"
-          class="w-full"
-        />
-      </UFormField>
-
-      <UButton
-        type="submit"
-        color="primary"
-        block
-        :loading="loading"
-        label="Entrar"
-      />
-    </UForm>
-  </UCard>
+        <template #validation>
+          <UAlert
+            v-if="isError && loginErrorMessage"
+            color="error"
+            variant="subtle"
+          >
+            <template #title>{{ t('error_title') }}</template>
+            <template #description>{{ loginErrorMessage }}</template>
+          </UAlert>
+        </template>
+      </UAuthForm>
+    </div>
+  </UContainer>
 </template>
+
+<i18n lang="yaml">
+en:
+  title: Login
+  tagline: Platform for the highest efficiency in transportation
+  field_username: Username
+  field_password: Password
+  validation_username: Username is required
+  validation_password: Password is required
+  error_title: Sign-in error
+es:
+  title: Iniciar sesión
+  tagline: Plataforma para la más alta eficiencia en transportes
+  field_username: Usuario
+  field_password: Contraseña
+  validation_username: Usuario requerido
+  validation_password: Contraseña requerida
+  error_title: Error al acceder
+</i18n>

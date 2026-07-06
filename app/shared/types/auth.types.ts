@@ -1,0 +1,32 @@
+export interface AuthCompany {
+  id: number
+  name: string
+}
+
+export interface AuthOrganization {
+  id: number
+  name: string
+  companies: AuthCompany[]
+}
+
+export interface AuthUser {
+  id: number
+  username: string
+}
+
+export interface AuthLoginResponse {
+  token: string
+  user: AuthUser
+  organization: AuthOrganization
+}
+
+export interface AuthSession {
+  token: string
+  user: AuthUser
+  organization: AuthOrganization
+}
+
+export interface AuthLoginRequest {
+  username: string
+  password: string
+}

@@ -15,7 +15,7 @@ const stats = [
   <div class="space-y-6">
     <div>
       <h1 class="text-2xl font-bold">
-        Hola, {{ user?.name || 'bienvenido' }} 👋
+        Hola, {{ user?.username || 'bienvenido' }} 👋
       </h1>
       <p class="text-muted">Este es tu panel principal.</p>
     </div>
