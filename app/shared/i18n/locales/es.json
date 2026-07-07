@@ -48,7 +48,48 @@
   },
   "tasks": {
     "moduleTitle": "Módulo de Tareas",
-    "placeholder": "El contenido de tareas se maquetará aquí. Por ahora el sidebar y el toolbar están listos como referencia."
+    "placeholder": "El contenido de tareas se maquetará aquí. Por ahora el sidebar y el toolbar están listos como referencia.",
+    "filters": "Filtros",
+    "newTask": "Nueva tarea",
+    "comingSoon": "Próximamente",
+    "requiresAttention": "Requiere atención",
+    "complete": "Completar tarea",
+    "empty": "No hay tareas",
+    "loadError": "No se pudieron cargar las tareas",
+    "sections": {
+      "all": "Todas",
+      "urgent": "Urgentes",
+      "today": "Hoy",
+      "upcoming": "Próximas"
+    },
+    "views": {
+      "list": "Lista",
+      "kanban": "Kanban",
+      "calendar": "Calendario"
+    },
+    "due": {
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "yesterday": "Ayer",
+      "inDays": "En {n} d",
+      "overdue": "Vencida"
+    },
+    "priorities": {
+      "urgent": "Urgente",
+      "critical": "Crítica",
+      "high": "Alta",
+      "normal": "Normal"
+    },
+    "types": {
+      "manual": "Manual",
+      "trigger": "Trigger",
+      "repeat": "Repetitiva",
+      "volume": "Volumen",
+      "multiple_close": "Cierre múltiple",
+      "puesto": "Puesto",
+      "bug": "Bug",
+      "unknown": "Otro"
+    }
   },
   "settings": {
     "title": "Configuración",

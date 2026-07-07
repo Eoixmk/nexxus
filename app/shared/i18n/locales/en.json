@@ -48,7 +48,48 @@
   },
   "tasks": {
     "moduleTitle": "Tasks Module",
-    "placeholder": "The tasks content will be laid out here. For now the sidebar and toolbar are ready as a reference."
+    "placeholder": "The tasks content will be laid out here. For now the sidebar and toolbar are ready as a reference.",
+    "filters": "Filters",
+    "newTask": "New task",
+    "comingSoon": "Coming soon",
+    "requiresAttention": "Needs attention",
+    "complete": "Complete task",
+    "empty": "No tasks",
+    "loadError": "Could not load tasks",
+    "sections": {
+      "all": "All",
+      "urgent": "Urgent",
+      "today": "Today",
+      "upcoming": "Upcoming"
+    },
+    "views": {
+      "list": "List",
+      "kanban": "Kanban",
+      "calendar": "Calendar"
+    },
+    "due": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "yesterday": "Yesterday",
+      "inDays": "In {n}d",
+      "overdue": "Overdue"
+    },
+    "priorities": {
+      "urgent": "Urgent",
+      "critical": "Critical",
+      "high": "High",
+      "normal": "Normal"
+    },
+    "types": {
+      "manual": "Manual",
+      "trigger": "Trigger",
+      "repeat": "Recurring",
+      "volume": "Volume",
+      "multiple_close": "Multiple close",
+      "puesto": "Position",
+      "bug": "Bug",
+      "unknown": "Other"
+    }
   },
   "settings": {
     "title": "Settings",
