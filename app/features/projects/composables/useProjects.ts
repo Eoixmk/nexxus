@@ -5,14 +5,14 @@ import type { Project } from '~/features/projects/types/project.types'
  * Patrón recomendado por feature: composable + TanStack Query en la página.
  */
 export function useProjects() {
-  const { authFetch } = useAuth()
+  const { $api } = useNuxtApp()
 
   function fetchProjects() {
-    return authFetch<Project[]>('/api/projects/')
+    return $api<Project[]>('/api/projects/')
   }
 
   function fetchProject(id: number) {
-    return authFetch<Project>(`/api/projects/${id}/`)
+    return $api<Project>(`/api/projects/${id}/`)
   }
 
   return { fetchProjects, fetchProject }

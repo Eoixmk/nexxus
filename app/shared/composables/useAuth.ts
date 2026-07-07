@@ -55,21 +55,6 @@ export function useAuth() {
     }
   }
 
-  function authFetch<T>(url: string, options: Parameters<typeof $fetch<T>>[1] = {}) {
-    if (!token.value) {
-      throw new Error('No hay sesión activa')
-    }
-
-    return $fetch<T>(url, {
-      ...options,
-      baseURL: apiBaseUrl,
-      headers: {
-        Authorization: `Token ${token.value}`,
-        ...options.headers,
-      },
-    })
-  }
-
   return {
     session,
     user,
@@ -78,6 +63,5 @@ export function useAuth() {
     isLoggedIn,
     login,
     logout,
-    authFetch,
   }
 }
