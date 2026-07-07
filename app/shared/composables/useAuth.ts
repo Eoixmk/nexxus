@@ -22,20 +22,17 @@ export function useAuth() {
       password,
     }
 
-    try {
-      const data = await $fetch<AuthLoginResponse>(apiAuthPath as string, {
-        baseURL: apiBaseUrl,
-        method: 'POST',
-        body,
-      })
+    // Dejamos propagar el FetchError original: la UI lo formatea con parseFetchError.
+    const data = await $fetch<AuthLoginResponse>(apiAuthPath as string, {
+      baseURL: apiBaseUrl,
+      method: 'POST',
+      body,
+    })
 
-      session.value = {
-        token: data.token,
-        user: data.user,
-        organization: data.organization,
-      }
-    } catch (error) {
-      throw new Error(getFetchErrorMessage(error, 'No se pudo iniciar sesión'))
+    session.value = {
+      token: data.token,
+      user: data.user,
+      organization: data.organization,
     }
   }
 

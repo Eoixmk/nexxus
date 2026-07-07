@@ -16,5 +16,59 @@
       "invalidEmail": "Invalid email",
       "passwordMin": "Minimum 6 characters"
     }
+  },
+  "common": {
+    "settings": "Settings",
+    "logout": "Sign out",
+    "back": "Back"
+  },
+  "user": {
+    "fallback": "User",
+    "roleManager": "Manager"
+  },
+  "sidebar": {
+    "sectionTasks": "Tasks",
+    "sectionMaster": "Master settings",
+    "reporteCeo": "CEO Report",
+    "dashboard": "Dashboard",
+    "tasks": "Tasks",
+    "toAccept": "To accept",
+    "settings": "Settings",
+    "masterSettings": "Settings"
+  },
+  "toolbar": {
+    "module": "Module",
+    "moduleName": "Tasks",
+    "searchPlaceholder": "Search tasks...",
+    "showMenu": "Show menu",
+    "hideMenu": "Hide menu",
+    "nexxa": "Nexxa in action",
+    "notifications": "Notifications",
+    "toggleTheme": "Toggle theme"
+  },
+  "tasks": {
+    "moduleTitle": "Tasks Module",
+    "placeholder": "The tasks content will be laid out here. For now the sidebar and toolbar are ready as a reference."
+  },
+  "settings": {
+    "title": "Settings",
+    "language": {
+      "title": "Language",
+      "description": "Choose the interface language."
+    }
+  },
+  "hub": {
+    "title": "Select a module",
+    "subtitle": "Choose where you want to go",
+    "openModule": "Open module",
+    "tasksDescription": "Manage and track your tasks."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "placeholder": "The dashboard content will be laid out here."
+  },
+  "ceoReport": {
+    "title": "CEO Report",
+    "placeholder": "The CEO report content will be laid out here."
   }
 }

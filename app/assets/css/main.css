@@ -1,2 +1,55 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
+
+/*
+ * Tokens de marca AETO / Nexxus (estilo shadcn) para el shell de la app.
+ * Se definen como variables CSS que cambian con el color mode (.dark)
+ * y se exponen como utilidades Tailwind vía `@theme inline`.
+ */
+:root {
+  --background: #ffffff;
+  --foreground: #1c1c1c;
+  --card: #ffffff;
+  --border: #e6e8eb;
+  --muted: #f4f5f7;
+  --muted-foreground: #6b7280;
+  --sidebar: #fafbfc;
+  --sidebar-border: #e6e8eb;
+  --sidebar-foreground: #3f434b;
+  --ring: #28ceab;
+  --aeto-teal: #28ceab;
+  --aeto-teal-light: rgba(40, 206, 171, 0.12);
+  --aeto-teal-dark: #0d7a66;
+}
+
+.dark {
+  --background: #0e1014;
+  --foreground: #f3f4f6;
+  --card: #15171c;
+  --border: #262a31;
+  --muted: #1e2127;
+  --muted-foreground: #9aa1ac;
+  --sidebar: #101216;
+  --sidebar-border: #21252c;
+  --sidebar-foreground: #c7ccd4;
+  --ring: #28ceab;
+  --aeto-teal: #28ceab;
+  --aeto-teal-light: rgba(40, 206, 171, 0.15);
+  --aeto-teal-dark: #34d6b3;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-ring: var(--ring);
+  --color-aeto-teal: var(--aeto-teal);
+  --color-aeto-teal-light: var(--aeto-teal-light);
+  --color-aeto-teal-dark: var(--aeto-teal-dark);
+}

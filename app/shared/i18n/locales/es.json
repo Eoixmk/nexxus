@@ -16,5 +16,59 @@
       "invalidEmail": "Correo inválido",
       "passwordMin": "Mínimo 6 caracteres"
     }
+  },
+  "common": {
+    "settings": "Configuración",
+    "logout": "Cerrar sesión",
+    "back": "Volver"
+  },
+  "user": {
+    "fallback": "Usuario",
+    "roleManager": "Manager"
+  },
+  "sidebar": {
+    "sectionTasks": "Tasks",
+    "sectionMaster": "Configuración master",
+    "reporteCeo": "Reporte CEO",
+    "dashboard": "Dashboard",
+    "tasks": "Tareas",
+    "toAccept": "Por aceptar",
+    "settings": "Configuración",
+    "masterSettings": "Configuración"
+  },
+  "toolbar": {
+    "module": "Módulo",
+    "moduleName": "Tareas",
+    "searchPlaceholder": "Buscar tareas...",
+    "showMenu": "Mostrar menú",
+    "hideMenu": "Ocultar menú",
+    "nexxa": "Nexxa en acción",
+    "notifications": "Notificaciones",
+    "toggleTheme": "Cambiar tema"
+  },
+  "tasks": {
+    "moduleTitle": "Módulo de Tareas",
+    "placeholder": "El contenido de tareas se maquetará aquí. Por ahora el sidebar y el toolbar están listos como referencia."
+  },
+  "settings": {
+    "title": "Configuración",
+    "language": {
+      "title": "Idioma",
+      "description": "Elige el idioma de la interfaz."
+    }
+  },
+  "hub": {
+    "title": "Selecciona un módulo",
+    "subtitle": "Elige a dónde quieres ir",
+    "openModule": "Abrir módulo",
+    "tasksDescription": "Gestiona y da seguimiento a tus tareas."
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "placeholder": "El contenido del dashboard se maquetará aquí."
+  },
+  "ceoReport": {
+    "title": "Reporte CEO",
+    "placeholder": "El contenido del reporte CEO se maquetará aquí."
   }
 }

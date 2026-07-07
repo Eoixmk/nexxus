@@ -1,7 +1,4 @@
-export interface Project {
-  id: number
-  name: string
-}
+import type { Project } from '~/features/projects/types/project.types'
 
 /**
  * Ejemplo de consumo de la API con sesión activa.
