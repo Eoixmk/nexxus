@@ -11,6 +11,8 @@ export type TaskType =
 
 export type TaskView = 'list' | 'kanban' | 'calendar'
 
+export type TaskGroupBy = 'all' | 'due' | 'topic' | 'group'
+
 export type TaskSectionKey = 'urgent' | 'today' | 'upcoming'
 
 export interface TaskCloseApproval {
@@ -39,4 +41,12 @@ export interface TaskCounts {
   urgent: number
   due_today: number
   tasks: number
+}
+
+export interface OverdueCounts {
+  today: number
+  tomorrow: number
+  week: number
+  month: number
+  no_date: number
 }

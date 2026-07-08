@@ -50,6 +50,7 @@
     "moduleTitle": "Módulo de Tareas",
     "placeholder": "El contenido de tareas se maquetará aquí. Por ahora el sidebar y el toolbar están listos como referencia.",
     "filters": "Filtros",
+    "viewBy": "Ver por:",
     "newTask": "Nueva tarea",
     "comingSoon": "Próximamente",
     "requiresAttention": "Requiere atención",
@@ -61,6 +62,19 @@
       "urgent": "Urgentes",
       "today": "Hoy",
       "upcoming": "Próximas"
+    },
+    "groupBy": {
+      "all": "Todas",
+      "due": "Vencimiento",
+      "topic": "Tema",
+      "group": "Grupo"
+    },
+    "overdueSections": {
+      "today": "Hoy",
+      "tomorrow": "Mañana",
+      "week": "Esta semana",
+      "month": "Este mes",
+      "noDate": "Sin fecha"
     },
     "views": {
       "list": "Lista",

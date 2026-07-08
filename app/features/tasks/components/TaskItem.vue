@@ -49,7 +49,7 @@ const dueLabel = computed(() => {
       :aria-label="t('tasks.complete')"
     />
 
-    <span class="flex-1 min-w-0 text-sm text-foreground truncate">
+    <span class="min-w-0 text-sm text-foreground truncate">
       {{ task.short_description }}
     </span>
 
@@ -80,7 +80,7 @@ const dueLabel = computed(() => {
     </div>
 
     <span
-      class="w-16 text-right text-xs shrink-0"
+      class="w-16 text-right text-xs shrink-0 ml-auto"
       :class="isOverdue ? 'text-error font-medium' : 'text-muted-foreground'"
     >
       {{ dueLabel }}

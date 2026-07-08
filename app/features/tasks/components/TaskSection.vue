@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Task } from '~/features/tasks/types/task.types'
 import TaskItem from '~/features/tasks/components/TaskItem.vue'
+import TaskSectionBadgeFallback from '~/features/tasks/components/TaskSectionBadgeFallback.vue'
 
 withDefaults(
   defineProps<{
@@ -33,15 +34,16 @@ const { t } = useI18n()
           class="h-4 w-4 text-muted-foreground transition-transform"
           :class="{ '-rotate-90': !open }"
         />
-        <span class="h-2 w-2 rounded-full" :style="{ backgroundColor: dotColor }" />
+        <UBadge
+          v-if="count !== undefined"
+          :label="count.toString()"
+          size="md"
+          class="text-white ring-0"
+          :style="{ backgroundColor: dotColor }"
+        />
+        <TaskSectionBadgeFallback v-else />
         <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {{ title }}
-        </span>
-        <span
-          v-if="count !== undefined"
-          class="ml-auto text-xs font-medium text-muted-foreground"
-        >
-          {{ count }}
         </span>
       </button>
     </template>

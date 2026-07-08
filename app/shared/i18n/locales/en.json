@@ -50,6 +50,7 @@
     "moduleTitle": "Tasks Module",
     "placeholder": "The tasks content will be laid out here. For now the sidebar and toolbar are ready as a reference.",
     "filters": "Filters",
+    "viewBy": "View by:",
     "newTask": "New task",
     "comingSoon": "Coming soon",
     "requiresAttention": "Needs attention",
@@ -61,6 +62,19 @@
       "urgent": "Urgent",
       "today": "Today",
       "upcoming": "Upcoming"
+    },
+    "groupBy": {
+      "all": "All",
+      "due": "Due date",
+      "topic": "Topic",
+      "group": "Group"
+    },
+    "overdueSections": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "week": "This week",
+      "month": "This month",
+      "noDate": "No date"
     },
     "views": {
       "list": "List",
