@@ -50,3 +50,35 @@ export interface OverdueCounts {
   month: number
   no_date: number
 }
+
+export interface ProjectDropdown {
+  id: number
+  name: string
+}
+
+export interface ProjectTaskCount {
+  id: number
+  name: string
+  total: number
+}
+
+export interface ProjectTaskSection {
+  id: number
+  name: string
+  count?: number
+  dotColor: string
+  tasks: Task[]
+  loading: boolean
+  error: boolean
+}
+
+export interface UserDropdown {
+  id: number
+  username: string
+}
+
+export interface AssignedTaskCount {
+  id: number
+  username: string
+  total: number
+}

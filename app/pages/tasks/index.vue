@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import TaskDueListView from '~/features/tasks/components/TaskDueListView.vue'
 import TaskGroupByFilter from '~/features/tasks/components/TaskGroupByFilter.vue'
+import TaskGroupListView from '~/features/tasks/components/TaskGroupListView.vue'
 import TaskListView from '~/features/tasks/components/TaskListView.vue'
+import TaskTopicListView from '~/features/tasks/components/TaskTopicListView.vue'
 import TaskViewSwitcher from '~/features/tasks/components/TaskViewSwitcher.vue'
 import type { TaskGroupBy, TaskView } from '~/features/tasks/types/task.types'
 
@@ -21,7 +23,7 @@ useTitle(t('toolbar.moduleName'))
 </script>
 
 <template>
-  <!-- <UContainer> -->
+
     <div class="flex flex-col m-8">
       <div
         class="sticky top-0 z-10 bg-background border-b border-border px-4 py-3 flex items-center justify-between gap-3"
@@ -60,6 +62,8 @@ useTitle(t('toolbar.moduleName'))
 
       <TaskListView v-if="view === 'list' && groupBy === 'all'" />
       <TaskDueListView v-else-if="view === 'list' && groupBy === 'due'" />
+      <TaskTopicListView v-else-if="view === 'list' && groupBy === 'topic'" />
+      <TaskGroupListView v-else-if="view === 'list' && groupBy === 'group'" />
 
       <div
         v-else-if="view === 'list'"
@@ -77,5 +81,4 @@ useTitle(t('toolbar.moduleName'))
         <p class="text-sm">{{ t('tasks.comingSoon') }}</p>
       </div>
     </div>
-  <!-- </UContainer> -->
 </template>
