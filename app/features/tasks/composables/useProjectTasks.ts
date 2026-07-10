@@ -1,11 +1,13 @@
 import { useQueries, useQuery } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 import type { PaginatedResponse } from '~/shared/types/api.types'
-import { extractResults } from '~/features/tasks/utils/task-api.util'
+import { extractResults, toTaskListQuery } from '~/features/tasks/utils/task-api.util'
 import type {
   ProjectDropdown,
   ProjectTaskCount,
   ProjectTaskSection,
   Task,
+  TaskListFilters,
 } from '~/features/tasks/types/task.types'
 
 const PROJECT_SECTION_COLORS = ['#6366f1', '#28ceab', '#f97316', '#8b5cf6', '#dc2626', '#6b7280']
@@ -16,12 +18,13 @@ const PROJECT_SECTION_COLORS = ['#6366f1', '#28ceab', '#f97316', '#8b5cf6', '#dc
  * NOTA: la empresa está fija en 1 por ahora (TODO: derivar de la empresa
  * seleccionada).
  */
-export function useProjectTasks() {
+export function useProjectTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
   const { $api } = useNuxtApp()
   const companyId = 1
 
   const projectsBase = `/api/tools/dropdown/projects/company/${companyId}`
   const tasksBase = `/api/tasks/company/${companyId}/project`
+  const query = computed(() => toTaskListQuery(toValue(filters)))
 
   const projects = useQuery({
     queryKey: ['tasks', companyId, 'projects', 'dropdown'],
@@ -29,19 +32,26 @@ export function useProjectTasks() {
   })
 
   const counts = useQuery({
-    queryKey: ['tasks', companyId, 'project', 'counts'],
-    queryFn: () => $api<ProjectTaskCount[]>(`${tasksBase}/counts/`),
+    queryKey: computed(() => ['tasks', companyId, 'project', 'counts', query.value]),
+    queryFn: () => $api<ProjectTaskCount[]>(`${tasksBase}/counts/`, { query: query.value }),
   })
 
-  const projectList = computed(() => extractResults(projects.data.value))
+  const projectList = computed(() => {
+    const list = extractResults(projects.data.value)
+    const projectId = toValue(filters).project
+    if (projectId == null) {
+      return list
+    }
+    return list.filter(project => project.id === projectId)
+  })
 
   const projectIds = computed(() => projectList.value.map(p => p.id))
 
   const taskQueries = useQueries({
     queries: computed(() =>
       projectIds.value.map(id => ({
-        queryKey: ['tasks', companyId, 'project', id],
-        queryFn: () => $api<PaginatedResponse<Task>>(`${tasksBase}/${id}/`),
+        queryKey: ['tasks', companyId, 'project', id, query.value],
+        queryFn: () => $api<PaginatedResponse<Task>>(`${tasksBase}/${id}/`, { query: query.value }),
         enabled: projectIds.value.length > 0,
       })),
     ),
@@ -51,8 +61,8 @@ export function useProjectTasks() {
     const countsMap = new Map((counts.data.value ?? []).map(c => [c.id, c.total]))
 
     return projectList.value.map((project, index) => {
-      const query = taskQueries.value[index]
-      const tasks = extractResults(query?.data)
+      const queryResult = taskQueries.value[index]
+      const tasks = extractResults(queryResult?.data)
 
       return {
         id: project.id,
@@ -62,8 +72,8 @@ export function useProjectTasks() {
           ? tasks[0].project_color.trim()
           : PROJECT_SECTION_COLORS[index % PROJECT_SECTION_COLORS.length],
         tasks,
-        loading: query?.isPending ?? false,
-        error: query?.isError ?? false,
+        loading: queryResult?.isPending ?? false,
+        error: queryResult?.isError ?? false,
       }
     })
   })

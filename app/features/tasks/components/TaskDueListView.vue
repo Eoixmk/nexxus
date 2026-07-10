@@ -1,8 +1,13 @@
 <script setup lang="ts">
 import TaskSection from '~/features/tasks/components/TaskSection.vue'
+import type { TaskListFilters } from '~/features/tasks/types/task.types'
+
+const props = defineProps<{
+  filters: TaskListFilters
+}>()
 
 const { t } = useI18n()
-const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks()
+const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => props.filters)
 </script>
 
 <template>

@@ -35,6 +35,16 @@ export type TaskGroupBy = 'all' | 'due' | 'topic' | 'group'
 
 export type TaskSectionKey = 'urgent' | 'today' | 'upcoming'
 
+/** Filtros de query compartidos por todas las listas de tareas. */
+export interface TaskListFilters {
+  short_description?: string
+  type?: TaskType
+  project?: number
+  overdue?: boolean
+  completed?: boolean
+  multiple_close?: boolean
+}
+
 export interface TaskCloseApproval {
   id: number
   profile: number
