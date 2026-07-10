@@ -103,6 +103,66 @@
       "puesto": "Puesto",
       "bug": "Bug",
       "unknown": "Otro"
+    },
+    "form": {
+      "taskType": "Tipo de Tarea",
+      "name": "Nombre",
+      "namePlaceholder": "¿Qué hay que hacer?",
+      "description": "Descripción",
+      "descriptionPlaceholder": "Contexto adicional opcional...",
+      "topic": "Tema",
+      "topicPlaceholder": "Selecciona un tema...",
+      "assignedTo": "Asignado a",
+      "assignedToPlaceholder": "Buscar usuario...",
+      "dueDate": "Fecha Límite",
+      "markUrgent": "Marcar como urgente",
+      "effort": "Esfuerzo",
+      "effortOptional": "opcional",
+      "effortQuick": "Rápida",
+      "effortQuickHint": "< 30 min",
+      "effortNormal": "Normal",
+      "effortNormalHint": "1-4 hrs",
+      "effortComplex": "Compleja",
+      "effortComplexHint": "> medio día",
+      "nexxtepTitle": "Nexxtep puede gestionar esto",
+      "nexxtepAccept": "Sí, que Nexxtep me ayude",
+      "nexxtepDecline": "No, lo hago yo",
+      "cancel": "Cancelar",
+      "create": "Crear tarea",
+      "createError": "No se pudo crear la tarea",
+      "validation": {
+        "nameRequired": "El nombre es obligatorio",
+        "projectRequired": "Selecciona un tema",
+        "assignedToRequired": "Selecciona a quién asignar la tarea",
+        "dueDateRequired": "Selecciona una fecha límite"
+      },
+      "typeDescriptions": {
+        "manual": "Tarea operativa estándar",
+        "volume": "Mide unidades con IA",
+        "multiple_close": "Requiere confirmación de todos los participantes"
+      },
+      "volume": {
+        "countWhat": "¿Qué vas a contar?",
+        "countWhatPlaceholder": "ej. facturas, guías, contratos, piezas, llamadas...",
+        "periodGoal": "Meta del período",
+        "periodGoalPlaceholder": "10",
+        "pointsPerUnit": "Puntos por unidad",
+        "pointsPerUnitPlaceholder": "1",
+        "pointsPerUnitHelp": "Cada unidad validada suma estos puntos a la carga productiva",
+        "verifyDates": "Verificar fechas dentro del período",
+        "rejectDuplicates": "Rechazar archivos duplicados",
+        "nexxaAiAnalysis": "Análisis con Nexxa IA (PDF, XML, ZIP, imagen...)"
+      },
+      "multipleClose": {
+        "title": "¿Quiénes deben confirmar?",
+        "description": "Además de ti. Cada uno debe cerrar su parte para completar la tarea.",
+        "searchPlaceholder": "Buscar colaborador..."
+      },
+      "nexxtepSuggestions": {
+        "contact": "Contacto con proveedor externo",
+        "schedule": "Agendar cita y confirmar asistencia",
+        "evidence": "Solicitar evidencia fotográfica"
+      }
     }
   },
   "settings": {

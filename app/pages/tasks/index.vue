@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TaskNewTaskSlideover from '~/features/tasks/components/TaskNewTaskSlideover.vue'
 import TaskDueListView from '~/features/tasks/components/TaskDueListView.vue'
 import TaskGroupByFilter from '~/features/tasks/components/TaskGroupByFilter.vue'
 import TaskGroupListView from '~/features/tasks/components/TaskGroupListView.vue'
@@ -16,6 +17,7 @@ const view = ref<TaskView>('list')
 const search = ref('')
 const groupBy = ref<TaskGroupBy>('all')
 const filtersOpen = ref(false)
+const newTaskOpen = ref(false)
 
 const activeGroupByLabel = computed(() => t(`tasks.groupBy.${groupBy.value}`))
 
@@ -52,7 +54,12 @@ useTitle(t('toolbar.moduleName'))
             >
           </div>
           <TaskViewSwitcher v-model="view" />
-          <UButton icon="i-lucide-plus" color="primary" :label="t('tasks.newTask')" />
+          <UButton
+            icon="i-lucide-plus"
+            color="primary"
+            :label="t('tasks.newTask')"
+            @click="() => { newTaskOpen = true }"
+          />
         </div>
       </div>
 
@@ -80,5 +87,6 @@ useTitle(t('toolbar.moduleName'))
         <UIcon name="i-lucide-construction" class="h-8 w-8" />
         <p class="text-sm">{{ t('tasks.comingSoon') }}</p>
       </div>
+      <TaskNewTaskSlideover v-model:open="newTaskOpen" />
     </div>
 </template>

@@ -9,6 +9,26 @@ export type TaskType =
   | 'puesto'
   | 'bug'
 
+/** Tipos disponibles al crear una tarea desde el slideover. */
+export type NewTaskFormType = Extract<TaskType, 'manual' | 'volume' | 'multiple_close'>
+
+/** Esfuerzo seleccionado en el formulario de creación. */
+export type TaskEffort = 'quick' | 'normal' | 'complex'
+
+/** Prioridades aceptadas por el endpoint de creación. */
+export type ApiTaskPriority = 'low' | 'normal' | 'high' | 'urgent' | 'critical'
+
+export interface CreateTaskPayload {
+  short_description: string
+  long_description: string
+  type: NewTaskFormType
+  priority: ApiTaskPriority
+  start_date: string
+  limit_date: string
+  project: number
+  assigned_to: number[]
+}
+
 export type TaskView = 'list' | 'kanban' | 'calendar'
 
 export type TaskGroupBy = 'all' | 'due' | 'topic' | 'group'

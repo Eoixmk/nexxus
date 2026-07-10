@@ -103,6 +103,66 @@
       "puesto": "Position",
       "bug": "Bug",
       "unknown": "Other"
+    },
+    "form": {
+      "taskType": "Task type",
+      "name": "Name",
+      "namePlaceholder": "What needs to be done?",
+      "description": "Description",
+      "descriptionPlaceholder": "Optional additional context...",
+      "topic": "Topic",
+      "topicPlaceholder": "Select a topic...",
+      "assignedTo": "Assigned to",
+      "assignedToPlaceholder": "Search user...",
+      "dueDate": "Due date",
+      "markUrgent": "Mark as urgent",
+      "effort": "Effort",
+      "effortOptional": "optional",
+      "effortQuick": "Quick",
+      "effortQuickHint": "< 30 min",
+      "effortNormal": "Normal",
+      "effortNormalHint": "1-4 hrs",
+      "effortComplex": "Complex",
+      "effortComplexHint": "> half day",
+      "nexxtepTitle": "Nexxtep can handle this",
+      "nexxtepAccept": "Yes, let Nexxtep help me",
+      "nexxtepDecline": "No, I'll do it myself",
+      "cancel": "Cancel",
+      "create": "Create task",
+      "createError": "Could not create the task",
+      "validation": {
+        "nameRequired": "Name is required",
+        "projectRequired": "Select a topic",
+        "assignedToRequired": "Select who to assign the task to",
+        "dueDateRequired": "Select a due date"
+      },
+      "typeDescriptions": {
+        "manual": "Standard operational task",
+        "volume": "Measure units with AI",
+        "multiple_close": "Requires confirmation from all participants"
+      },
+      "volume": {
+        "countWhat": "What will you count?",
+        "countWhatPlaceholder": "e.g. invoices, guides, contracts, pieces, calls...",
+        "periodGoal": "Period goal",
+        "periodGoalPlaceholder": "10",
+        "pointsPerUnit": "Points per unit",
+        "pointsPerUnitPlaceholder": "1",
+        "pointsPerUnitHelp": "Each validated unit adds these points to productive load",
+        "verifyDates": "Verify dates within the period",
+        "rejectDuplicates": "Reject duplicate files",
+        "nexxaAiAnalysis": "Nexxa AI analysis (PDF, XML, ZIP, image...)"
+      },
+      "multipleClose": {
+        "title": "Who must confirm?",
+        "description": "Besides you. Each person must close their part to complete the task.",
+        "searchPlaceholder": "Search collaborator..."
+      },
+      "nexxtepSuggestions": {
+        "contact": "Contact with external supplier",
+        "schedule": "Schedule appointment and confirm attendance",
+        "evidence": "Request photographic evidence"
+      }
     }
   },
   "settings": {
