@@ -1,12 +1,14 @@
 import { useQueries, useQuery } from '@tanstack/vue-query'
+import type { MaybeRefOrGetter } from 'vue'
 import type { PaginatedResponse } from '~/shared/types/api.types'
 import type {
   AssignedTaskCount,
   ProjectTaskSection,
   Task,
+  TaskListFilters,
   UserDropdown,
 } from '~/features/tasks/types/task.types'
-import { extractResults } from '~/features/tasks/utils/task-api.util'
+import { extractResults, toTaskListQuery } from '~/features/tasks/utils/task-api.util'
 
 const GROUP_SECTION_COLORS = ['#6366f1', '#28ceab', '#f97316', '#8b5cf6', '#dc2626', '#6b7280']
 
@@ -16,12 +18,13 @@ const GROUP_SECTION_COLORS = ['#6366f1', '#28ceab', '#f97316', '#8b5cf6', '#dc26
  * NOTA: la empresa está fija en 1 por ahora (TODO: derivar de la empresa
  * seleccionada).
  */
-export function useAssignedTasks() {
+export function useAssignedTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
   const { $api } = useNuxtApp()
   const companyId = 1
 
   const usersBase = '/api/tools/dropdown/users'
   const tasksBase = `/api/tasks/company/${companyId}/assigned`
+  const query = computed(() => toTaskListQuery(toValue(filters)))
 
   const users = useQuery({
     queryKey: ['tasks', 'users', 'dropdown'],
@@ -29,8 +32,8 @@ export function useAssignedTasks() {
   })
 
   const counts = useQuery({
-    queryKey: ['tasks', companyId, 'assigned', 'counts'],
-    queryFn: () => $api<AssignedTaskCount[]>(`${tasksBase}/counts/`),
+    queryKey: computed(() => ['tasks', companyId, 'assigned', 'counts', query.value]),
+    queryFn: () => $api<AssignedTaskCount[]>(`${tasksBase}/counts/`, { query: query.value }),
   })
 
   const userList = computed(() => extractResults(users.data.value))
@@ -40,8 +43,8 @@ export function useAssignedTasks() {
   const taskQueries = useQueries({
     queries: computed(() =>
       userIds.value.map(id => ({
-        queryKey: ['tasks', companyId, 'assigned', id],
-        queryFn: () => $api<PaginatedResponse<Task>>(`${tasksBase}/${id}/`),
+        queryKey: ['tasks', companyId, 'assigned', id, query.value],
+        queryFn: () => $api<PaginatedResponse<Task>>(`${tasksBase}/${id}/`, { query: query.value }),
         enabled: userIds.value.length > 0,
       })),
     ),
@@ -51,8 +54,8 @@ export function useAssignedTasks() {
     const countsMap = new Map((counts.data.value ?? []).map(c => [c.id, c.total]))
 
     return userList.value.map((user, index) => {
-      const query = taskQueries.value[index]
-      const tasks = extractResults(query?.data)
+      const queryResult = taskQueries.value[index]
+      const tasks = extractResults(queryResult?.data)
 
       return {
         id: user.id,
@@ -62,8 +65,8 @@ export function useAssignedTasks() {
           ? tasks[0].project_color.trim()
           : GROUP_SECTION_COLORS[index % GROUP_SECTION_COLORS.length],
         tasks,
-        loading: query?.isPending ?? false,
-        error: query?.isError ?? false,
+        loading: queryResult?.isPending ?? false,
+        error: queryResult?.isError ?? false,
       }
     })
   })
