@@ -113,7 +113,7 @@
       "topic": "Tema",
       "topicPlaceholder": "Selecciona un tema...",
       "assignedTo": "Asignado a",
-      "assignedToPlaceholder": "Buscar usuario...",
+      "assignedToPlaceholder": "Selecciona uno o más usuarios...",
       "dueDate": "Fecha Límite",
       "markUrgent": "Marcar como urgente",
       "effort": "Esfuerzo",
@@ -133,8 +133,9 @@
       "validation": {
         "nameRequired": "El nombre es obligatorio",
         "projectRequired": "Selecciona un tema",
-        "assignedToRequired": "Selecciona a quién asignar la tarea",
-        "dueDateRequired": "Selecciona una fecha límite"
+        "assignedToRequired": "Selecciona al menos un usuario asignado",
+        "dueDateRequired": "Selecciona una fecha límite",
+        "taskReviewerRequired": "Selecciona al menos un colaborador que deba confirmar"
       },
       "typeDescriptions": {
         "manual": "Tarea operativa estándar",

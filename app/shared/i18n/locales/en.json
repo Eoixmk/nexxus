@@ -113,7 +113,7 @@
       "topic": "Topic",
       "topicPlaceholder": "Select a topic...",
       "assignedTo": "Assigned to",
-      "assignedToPlaceholder": "Search user...",
+      "assignedToPlaceholder": "Select one or more users...",
       "dueDate": "Due date",
       "markUrgent": "Mark as urgent",
       "effort": "Effort",
@@ -133,8 +133,9 @@
       "validation": {
         "nameRequired": "Name is required",
         "projectRequired": "Select a topic",
-        "assignedToRequired": "Select who to assign the task to",
-        "dueDateRequired": "Select a due date"
+        "assignedToRequired": "Select at least one assigned user",
+        "dueDateRequired": "Select a due date",
+        "taskReviewerRequired": "Select at least one collaborator who must confirm"
       },
       "typeDescriptions": {
         "manual": "Standard operational task",

@@ -27,6 +27,7 @@ export interface CreateTaskPayload {
   limit_date: string
   project: number
   assigned_to: number[]
+  task_reviewer?: number[]
 }
 
 export type TaskView = 'list' | 'kanban' | 'calendar'

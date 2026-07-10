@@ -6,7 +6,7 @@ import type { PaginatedResponse } from '~/shared/types/api.types'
 import type { NewTaskFormType, ProjectDropdown, TaskEffort, UserDropdown } from '~/features/tasks/types/task.types'
 import { useCreateTask } from '~/features/tasks/composables/useCreateTask'
 import { extractResults } from '~/features/tasks/utils/task-api.util'
-import { buildCreateTaskPayload, type NewTaskFormInput } from '~/features/tasks/utils/task-form.util'
+import { buildCreateTaskPayload, defaultTaskReviewers, type NewTaskFormInput } from '~/features/tasks/utils/task-form.util'
 
 interface NewTaskFormState extends NewTaskFormInput {
   volumeCountWhat: string
@@ -15,12 +15,12 @@ interface NewTaskFormState extends NewTaskFormInput {
   volumeVerifyDates: boolean
   volumeRejectDuplicates: boolean
   volumeNexxaAiAnalysis: boolean
-  confirmCollaboratorSearch: string
 }
 
 const open = defineModel<boolean>('open', { default: false })
 
 const { t } = useI18n()
+const { user } = useAuth()
 const { $api } = useNuxtApp()
 const companyId = 1
 
@@ -34,7 +34,8 @@ const state = reactive<NewTaskFormState>({
   name: '',
   description: '',
   project: undefined,
-  assignedTo: undefined,
+  assignedTo: [],
+  taskReviewer: defaultTaskReviewers(user.value?.id),
   dueDate: '',
   urgent: false,
   effort: undefined,
@@ -44,7 +45,6 @@ const state = reactive<NewTaskFormState>({
   volumeVerifyDates: true,
   volumeRejectDuplicates: true,
   volumeNexxaAiAnalysis: true,
-  confirmCollaboratorSearch: '',
 })
 
 const taskTypeOptions: { value: NewTaskFormType, icon: string, descriptionKey: string }[] = [
@@ -96,7 +96,8 @@ function resetForm() {
   state.name = ''
   state.description = ''
   state.project = undefined
-  state.assignedTo = undefined
+  state.assignedTo = []
+  state.taskReviewer = defaultTaskReviewers(user.value?.id)
   state.dueDate = ''
   state.urgent = false
   state.effort = undefined
@@ -106,7 +107,16 @@ function resetForm() {
   state.volumeVerifyDates = true
   state.volumeRejectDuplicates = true
   state.volumeNexxaAiAnalysis = true
-  state.confirmCollaboratorSearch = ''
+}
+
+function ensureCurrentUserInReviewers() {
+  const currentUserId = user.value?.id
+  if (currentUserId == null) {
+    return
+  }
+  if (!state.taskReviewer.includes(currentUserId)) {
+    state.taskReviewer = [currentUserId, ...state.taskReviewer]
+  }
 }
 
 function close() {
@@ -119,6 +129,7 @@ function validationMessage(code: string): string {
     project_required: t('tasks.form.validation.projectRequired'),
     assigned_to_required: t('tasks.form.validation.assignedToRequired'),
     due_date_required: t('tasks.form.validation.dueDateRequired'),
+    task_reviewer_required: t('tasks.form.validation.taskReviewerRequired'),
   }
   return messages[code] ?? t('tasks.form.createError')
 }
@@ -127,7 +138,7 @@ async function onSubmit(_event: FormSubmitEvent<NewTaskFormState>) {
   submitError.value = ''
 
   try {
-    const payload = buildCreateTaskPayload(state)
+    const payload = buildCreateTaskPayload(state, user.value?.id)
     await createTask(payload)
     close()
   }
@@ -139,6 +150,22 @@ async function onSubmit(_event: FormSubmitEvent<NewTaskFormState>) {
     submitError.value = parseFetchError(error) || t('tasks.form.createError')
   }
 }
+
+watch(() => state.taskReviewer, (reviewers) => {
+  if (state.type !== 'multiple_close') {
+    return
+  }
+  const currentUserId = user.value?.id
+  if (currentUserId != null && !reviewers.includes(currentUserId)) {
+    state.taskReviewer = [currentUserId, ...reviewers]
+  }
+}, { deep: true })
+
+watch(() => state.type, (type) => {
+  if (type === 'multiple_close') {
+    ensureCurrentUserInReviewers()
+  }
+})
 
 watch(() => state.urgent, (isUrgent) => {
   if (isUrgent) {
@@ -302,10 +329,13 @@ watch(open, (isOpen) => {
                 {{ t('tasks.form.multipleClose.description') }}
               </p>
             </div>
-            <UInput
-              v-model="state.confirmCollaboratorSearch"
-              icon="i-lucide-search"
+            <USelect
+              v-model="state.taskReviewer"
+              multiple
+              :items="userItems"
               :placeholder="t('tasks.form.multipleClose.searchPlaceholder')"
+              :loading="usersQuery.isPending.value"
+              icon="i-lucide-search"
               class="w-full"
             />
           </div>
@@ -341,6 +371,7 @@ watch(open, (isOpen) => {
             <UFormField :label="t('tasks.form.assignedTo')" name="assignedTo" required>
               <USelect
                 v-model="state.assignedTo"
+                multiple
                 :items="userItems"
                 :placeholder="t('tasks.form.assignedToPlaceholder')"
                 :loading="usersQuery.isPending.value"
