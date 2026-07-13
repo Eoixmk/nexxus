@@ -2,6 +2,7 @@ import type {
   ApiTaskPriority,
   CreateTaskPayload,
   NewTaskFormType,
+  TaskDetail,
   TaskEffort,
 } from '~/features/tasks/types/task.types'
 
@@ -15,6 +16,44 @@ export interface NewTaskFormInput {
   dueDate: string
   urgent: boolean
   effort: TaskEffort | undefined
+}
+
+const FORM_TASK_TYPES: NewTaskFormType[] = ['manual', 'volume', 'multiple_close']
+const FORM_EFFORTS: TaskEffort[] = ['quick', 'normal', 'complex']
+
+function isNewTaskFormType(value: string): value is NewTaskFormType {
+  return FORM_TASK_TYPES.includes(value as NewTaskFormType)
+}
+
+function isTaskEffort(value: string): value is TaskEffort {
+  return FORM_EFFORTS.includes(value as TaskEffort)
+}
+
+function isoToDateInput(iso: string | null): string {
+  if (!iso) {
+    return ''
+  }
+  return iso.slice(0, 10)
+}
+
+/** Mapea el detalle del API al estado del formulario del slideover. */
+export function taskDetailToFormInput(detail: TaskDetail): NewTaskFormInput {
+  const urgent = detail.priority === 'urgent'
+  const effortFromApi = detail.effort && isTaskEffort(String(detail.effort))
+    ? (detail.effort as TaskEffort)
+    : undefined
+
+  return {
+    type: isNewTaskFormType(detail.type) ? detail.type : 'manual',
+    name: detail.short_description ?? '',
+    description: detail.long_description ?? '',
+    project: detail.project ?? undefined,
+    assignedTo: [...(detail.assigned_to ?? [])],
+    taskReviewer: detail.close_approvals?.map(approval => approval.profile) ?? [],
+    dueDate: isoToDateInput(detail.limit_date),
+    urgent,
+    effort: urgent ? undefined : effortFromApi,
+  }
 }
 
 /** Mapea esfuerzo/urgente al priority del API. */

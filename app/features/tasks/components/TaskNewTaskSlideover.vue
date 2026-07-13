@@ -5,8 +5,14 @@ import type { SelectItem } from '@nuxt/ui'
 import type { PaginatedResponse } from '~/shared/types/api.types'
 import type { NewTaskFormType, ProjectDropdown, TaskEffort, UserDropdown } from '~/features/tasks/types/task.types'
 import { useCreateTask } from '~/features/tasks/composables/useCreateTask'
+import { useTaskDetail } from '~/features/tasks/composables/useTaskDetail'
 import { extractResults } from '~/features/tasks/utils/task-api.util'
-import { buildCreateTaskPayload, defaultTaskReviewers, type NewTaskFormInput } from '~/features/tasks/utils/task-form.util'
+import {
+  buildCreateTaskPayload,
+  defaultTaskReviewers,
+  taskDetailToFormInput,
+  type NewTaskFormInput,
+} from '~/features/tasks/utils/task-form.util'
 
 interface NewTaskFormState extends NewTaskFormInput {
   volumeCountWhat: string
@@ -18,6 +24,7 @@ interface NewTaskFormState extends NewTaskFormInput {
 }
 
 const open = defineModel<boolean>('open', { default: false })
+const taskId = defineModel<number | null>('taskId', { default: null })
 
 const { t } = useI18n()
 const { user } = useAuth()
@@ -26,8 +33,10 @@ const companyId = 1
 
 const formId = 'new-task-form'
 const submitError = ref('')
+const isEditing = computed(() => taskId.value != null)
 
 const { mutateAsync: createTask, isPending } = useCreateTask()
+const taskDetailQuery = useTaskDetail(() => (open.value ? taskId.value : null))
 
 const state = reactive<NewTaskFormState>({
   type: 'manual',
@@ -109,6 +118,20 @@ function resetForm() {
   state.volumeNexxaAiAnalysis = true
 }
 
+function applyFormInput(input: NewTaskFormInput) {
+  state.type = input.type
+  state.name = input.name
+  state.description = input.description
+  state.project = input.project
+  state.assignedTo = [...input.assignedTo]
+  state.taskReviewer = input.taskReviewer.length
+    ? [...input.taskReviewer]
+    : defaultTaskReviewers(user.value?.id)
+  state.dueDate = input.dueDate
+  state.urgent = input.urgent
+  state.effort = input.effort
+}
+
 function ensureCurrentUserInReviewers() {
   const currentUserId = user.value?.id
   if (currentUserId == null) {
@@ -135,6 +158,12 @@ function validationMessage(code: string): string {
 }
 
 async function onSubmit(_event: FormSubmitEvent<NewTaskFormState>) {
+  // En modo edición solo se prellenan los campos (aún no hay update).
+  if (isEditing.value) {
+    close()
+    return
+  }
+
   submitError.value = ''
 
   try {
@@ -177,8 +206,22 @@ watch(open, (isOpen) => {
   if (!isOpen) {
     resetForm()
     submitError.value = ''
+    taskId.value = null
   }
 })
+
+watch(
+  () => taskDetailQuery.data.value,
+  (detail) => {
+    if (!open.value || !detail || taskId.value == null) {
+      return
+    }
+    applyFormInput(taskDetailToFormInput(detail))
+    if (state.type === 'multiple_close') {
+      ensureCurrentUserInReviewers()
+    }
+  },
+)
 </script>
 
 <template>
@@ -193,9 +236,12 @@ watch(open, (isOpen) => {
   >
     <template #header>
       <div class="flex items-center gap-2 min-w-0">
-        <UIcon name="i-lucide-plus" class="h-5 w-5 text-foreground shrink-0" />
+        <UIcon
+          :name="isEditing ? 'i-lucide-pencil' : 'i-lucide-plus'"
+          class="h-5 w-5 text-foreground shrink-0"
+        />
         <h2 class="text-base font-semibold text-foreground truncate">
-          {{ t('tasks.newTask') }}
+          {{ isEditing ? t('tasks.editTask') : t('tasks.newTask') }}
         </h2>
         <UBadge
           :label="t(`tasks.types.${state.type}`)"
@@ -215,6 +261,24 @@ watch(open, (isOpen) => {
         @submit="onSubmit"
       >
         <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+          <div
+            v-if="isEditing && taskDetailQuery.isPending.value"
+            class="space-y-3"
+          >
+            <USkeleton class="h-10 w-full" />
+            <USkeleton class="h-24 w-full" />
+            <USkeleton class="h-10 w-full" />
+            <USkeleton class="h-10 w-2/3" />
+          </div>
+
+          <UAlert
+            v-else-if="isEditing && taskDetailQuery.isError.value"
+            color="error"
+            variant="subtle"
+            :title="t('tasks.loadError')"
+            class="mb-2"
+          />
+
           <UAlert
             v-if="submitError"
             color="error"
@@ -223,6 +287,7 @@ watch(open, (isOpen) => {
             class="mb-2"
           />
 
+          <template v-if="!(isEditing && (taskDetailQuery.isPending.value || taskDetailQuery.isError.value))">
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {{ t('tasks.form.taskType') }}
@@ -477,6 +542,7 @@ watch(open, (isOpen) => {
               />
             </div>
           </div>
+          </template>
         </div>
       </UForm>
     </template>
@@ -491,6 +557,7 @@ watch(open, (isOpen) => {
           @click="close"
         />
         <UButton
+          v-if="!isEditing"
           :label="t('tasks.form.create')"
           color="primary"
           type="submit"

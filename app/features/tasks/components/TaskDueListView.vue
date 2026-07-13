@@ -2,8 +2,18 @@
 import TaskSection from '~/features/tasks/components/TaskSection.vue'
 import type { TaskListFilters } from '~/features/tasks/types/task.types'
 
-const props = defineProps<{
-  filters: TaskListFilters
+const props = withDefaults(
+  defineProps<{
+    filters: TaskListFilters
+    selectedTaskId?: number | null
+  }>(),
+  {
+    selectedTaskId: null,
+  },
+)
+
+defineEmits<{
+  select: [taskId: number]
 }>()
 
 const { t } = useI18n()
@@ -19,6 +29,8 @@ const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => p
       :tasks="today.data.value?.results ?? []"
       :loading="today.isPending.value"
       :error="today.isError.value"
+      :selected-task-id="selectedTaskId"
+      @select="$emit('select', $event)"
     />
 
     <TaskSection
@@ -28,6 +40,8 @@ const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => p
       :tasks="tomorrow.data.value?.results ?? []"
       :loading="tomorrow.isPending.value"
       :error="tomorrow.isError.value"
+      :selected-task-id="selectedTaskId"
+      @select="$emit('select', $event)"
     />
 
     <TaskSection
@@ -37,6 +51,8 @@ const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => p
       :tasks="week.data.value?.results ?? []"
       :loading="week.isPending.value"
       :error="week.isError.value"
+      :selected-task-id="selectedTaskId"
+      @select="$emit('select', $event)"
     />
 
     <TaskSection
@@ -46,6 +62,8 @@ const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => p
       :tasks="month.data.value?.results ?? []"
       :loading="month.isPending.value"
       :error="month.isError.value"
+      :selected-task-id="selectedTaskId"
+      @select="$emit('select', $event)"
     />
 
     <TaskSection
@@ -55,6 +73,8 @@ const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => p
       :tasks="noDate.data.value?.results ?? []"
       :loading="noDate.isPending.value"
       :error="noDate.isError.value"
+      :selected-task-id="selectedTaskId"
+      @select="$emit('select', $event)"
     />
   </div>
 </template>

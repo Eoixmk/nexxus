@@ -2,8 +2,18 @@
 import TaskSection from '~/features/tasks/components/TaskSection.vue'
 import type { TaskListFilters } from '~/features/tasks/types/task.types'
 
-const props = defineProps<{
-  filters: TaskListFilters
+const props = withDefaults(
+  defineProps<{
+    filters: TaskListFilters
+    selectedTaskId?: number | null
+  }>(),
+  {
+    selectedTaskId: null,
+  },
+)
+
+defineEmits<{
+  select: [taskId: number]
 }>()
 
 const { t } = useI18n()
@@ -34,6 +44,8 @@ const { users, sections } = useAssignedTasks(() => props.filters)
         :tasks="section.tasks"
         :loading="section.loading"
         :error="section.error"
+        :selected-task-id="selectedTaskId"
+        @select="$emit('select', $event)"
       />
     </template>
   </div>

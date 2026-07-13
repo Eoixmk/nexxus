@@ -1,7 +1,19 @@
 <script setup lang="ts">
 import type { Task } from '~/features/tasks/types/task.types'
 
-const props = defineProps<{ task: Task }>()
+const props = withDefaults(
+  defineProps<{
+    task: Task
+    selected?: boolean
+  }>(),
+  {
+    selected: false,
+  },
+)
+
+const emit = defineEmits<{
+  select: [taskId: number]
+}>()
 
 const { t, locale } = useI18n()
 
@@ -32,11 +44,20 @@ const dueLabel = computed(() => {
   }
   return formatShortDate(props.task.limit_date, locale.value)
 })
+
+function onSelect() {
+  emit('select', props.task.id)
+}
 </script>
 
 <template>
   <div
-    class="relative flex items-center gap-3 pl-4 pr-4 py-3 border-b border-border hover:bg-muted/50 transition-colors"
+    role="button"
+    tabindex="0"
+    class="relative flex items-center gap-3 pl-4 pr-4 py-3 border-b border-border hover:bg-muted/50 transition-colors cursor-pointer"
+    @click="onSelect"
+    @keydown.enter.prevent="onSelect"
+    @keydown.space.prevent="onSelect"
   >
     <span
       class="absolute left-0 top-0 bottom-0 w-1 rounded-r"
@@ -45,11 +66,27 @@ const dueLabel = computed(() => {
 
     <button
       type="button"
-      class="h-5 w-5 rounded-full border-2 border-muted-foreground/40 hover:border-aeto-teal shrink-0 transition-colors"
+      class="h-5 w-5 rounded-full border-2 shrink-0 transition-colors flex items-center justify-center"
+      :class="selected
+        ? 'border-aeto-teal bg-aeto-teal text-white'
+        : 'border-muted-foreground/40 hover:border-aeto-teal'"
       :aria-label="t('tasks.complete')"
-    />
+      :aria-pressed="selected"
+      @click.stop="onSelect"
+    >
+      <UIcon
+        v-if="selected"
+        name="i-lucide-check"
+        class="h-3 w-3"
+      />
+    </button>
 
-    <span class="min-w-0 text-sm text-foreground truncate">
+    <span
+      class="min-w-0 text-sm truncate transition-colors"
+      :class="selected
+        ? 'text-muted-foreground line-through'
+        : 'text-foreground'"
+    >
       {{ task.short_description }}
     </span>
 

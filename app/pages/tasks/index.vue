@@ -19,6 +19,7 @@ const search = ref('')
 const groupBy = ref<TaskGroupBy>('all')
 const filtersOpen = ref(false)
 const newTaskOpen = ref(false)
+const selectedTaskId = ref<number | null>(null)
 
 const debouncedSearch = refDebounced(search, 300)
 
@@ -32,6 +33,16 @@ watch(debouncedSearch, (value) => {
 })
 
 const activeGroupByLabel = computed(() => t(`tasks.groupBy.${groupBy.value}`))
+
+function openNewTask() {
+  selectedTaskId.value = null
+  newTaskOpen.value = true
+}
+
+function openTask(taskId: number) {
+  selectedTaskId.value = taskId
+  newTaskOpen.value = true
+}
 
 useTitle(t('toolbar.moduleName'))
 </script>
@@ -69,7 +80,7 @@ useTitle(t('toolbar.moduleName'))
           icon="i-lucide-plus"
           color="primary"
           :label="t('tasks.newTask')"
-          @click="() => { newTaskOpen = true }"
+          @click="openNewTask"
         />
       </div>
     </div>
@@ -79,10 +90,30 @@ useTitle(t('toolbar.moduleName'))
       <TaskListFilters v-model="listFilters" />
     </div>
 
-    <TaskListView v-if="view === 'list' && groupBy === 'all'" :filters="listFilters" />
-    <TaskDueListView v-else-if="view === 'list' && groupBy === 'due'" :filters="listFilters" />
-    <TaskTopicListView v-else-if="view === 'list' && groupBy === 'topic'" :filters="listFilters" />
-    <TaskGroupListView v-else-if="view === 'list' && groupBy === 'group'" :filters="listFilters" />
+    <TaskListView
+      v-if="view === 'list' && groupBy === 'all'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
+    <TaskDueListView
+      v-else-if="view === 'list' && groupBy === 'due'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
+    <TaskTopicListView
+      v-else-if="view === 'list' && groupBy === 'topic'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
+    <TaskGroupListView
+      v-else-if="view === 'list' && groupBy === 'group'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
 
     <div
       v-else-if="view === 'list'"
@@ -100,6 +131,9 @@ useTitle(t('toolbar.moduleName'))
       <p class="text-sm">{{ t('tasks.comingSoon') }}</p>
     </div>
 
-    <TaskNewTaskSlideover v-model:open="newTaskOpen" />
+    <TaskNewTaskSlideover
+      v-model:open="newTaskOpen"
+      v-model:task-id="selectedTaskId"
+    />
   </div>
 </template>

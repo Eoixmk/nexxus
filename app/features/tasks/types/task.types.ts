@@ -53,6 +53,16 @@ export interface TaskCloseApproval {
   closed_at: string | null
 }
 
+export interface TaskProcessEntry {
+  id: number
+  status: string
+  started_at: string | null
+  started_by: number | null
+  images: unknown[]
+  comment: string
+  created_at: string
+}
+
 export interface Task {
   id: number
   short_description: string
@@ -66,6 +76,17 @@ export interface Task {
   limit_date: string | null
   created_at: string
   close_approvals: TaskCloseApproval[]
+}
+
+/** Detalle completo de GET /api/tasks/:id/ */
+export interface TaskDetail extends Task {
+  long_description: string
+  effort: TaskEffort | string | null
+  assigned_to: number[]
+  recurrence: boolean
+  finish_at: string | null
+  updated_at: string
+  process_tasks: TaskProcessEntry[]
 }
 
 export interface TaskCounts {

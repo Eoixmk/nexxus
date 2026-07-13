@@ -11,13 +11,19 @@ withDefaults(
     count?: number
     loading?: boolean
     error?: boolean
+    selectedTaskId?: number | null
   }>(),
   {
     count: undefined,
     loading: false,
     error: false,
+    selectedTaskId: null,
   },
 )
+
+const emit = defineEmits<{
+  select: [taskId: number]
+}>()
 
 const { t } = useI18n()
 </script>
@@ -62,7 +68,13 @@ const { t } = useI18n()
       </p>
 
       <div v-else>
-        <TaskItem v-for="task in tasks" :key="task.id" :task="task" />
+        <TaskItem
+          v-for="task in tasks"
+          :key="task.id"
+          :task="task"
+          :selected="selectedTaskId === task.id"
+          @select="emit('select', $event)"
+        />
       </div>
     </template>
   </UCollapsible>
