@@ -15,6 +15,9 @@ const moduleName = computed(() => {
   if (route.path.startsWith('/reporte-ceo')) {
     return t('sidebar.reporteCeo')
   }
+  if (route.path.startsWith('/settings')) {
+    return t('settings.title')
+  }
   return t('toolbar.moduleName')
 })
 
