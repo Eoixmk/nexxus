@@ -23,9 +23,8 @@ const tasksItems: NavItem[] = [
   { labelKey: 'sidebar.reporteCeo', icon: 'i-lucide-file-chart-column', to: '/reporte-ceo' },
   { labelKey: 'sidebar.dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
   { labelKey: 'sidebar.tasks', icon: 'i-lucide-square-check-big', to: '/tasks' },
-  // Ítems mockeados: aún no enrutan a ningún lado.
-  { labelKey: 'sidebar.toAccept', icon: 'i-lucide-inbox', indent: true, badge: 1 },
-  { labelKey: 'sidebar.settings', icon: 'i-lucide-settings', indent: true },
+  { labelKey: 'sidebar.toAccept', icon: 'i-lucide-inbox', indent: true, badge: 1 }, // mock: aún sin ruta
+  { labelKey: 'sidebar.settings', icon: 'i-lucide-settings', indent: true, to: '/tasks/settings' },
 ]
 
 const masterItems: NavItem[] = [
@@ -35,6 +34,10 @@ const masterItems: NavItem[] = [
 function isActive(item: NavItem): boolean {
   if (!item.to) {
     return false
+  }
+  // /tasks no debe activarse en /tasks/settings
+  if (item.to === '/tasks') {
+    return route.path === '/tasks'
   }
   return route.path === item.to || route.path.startsWith(`${item.to}/`)
 }

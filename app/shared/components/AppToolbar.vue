@@ -15,6 +15,9 @@ const moduleName = computed(() => {
   if (route.path.startsWith('/reporte-ceo')) {
     return t('sidebar.reporteCeo')
   }
+  if (route.path.startsWith('/tasks/settings')) {
+    return t('taskSettings.title')
+  }
   if (route.path.startsWith('/settings')) {
     return t('settings.title')
   }
