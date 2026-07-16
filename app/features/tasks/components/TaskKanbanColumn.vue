@@ -1,0 +1,124 @@
+<script setup lang="ts">
+import type { KanbanColumn } from '~/features/tasks/types/task.types'
+import TaskKanbanCard from '~/features/tasks/components/TaskKanbanCard.vue'
+import TaskSectionBadgeFallback from '~/features/tasks/components/TaskSectionBadgeFallback.vue'
+
+const props = defineProps<{
+  column: KanbanColumn
+  selectedTaskId?: number | null
+  draggingTaskId?: number | null
+  dropTargetId?: string | number | null
+}>()
+
+const emit = defineEmits<{
+  select: [taskId: number]
+  dragStart: [payload: { taskId: number, columnId: string | number }]
+  dragEnd: []
+  dragOverColumn: [columnId: string | number]
+  dropTask: [payload: { taskId: number, fromColumnId: string | number, toColumnId: string | number }]
+}>()
+
+const { t } = useI18n()
+
+const canDrop = computed(() => !props.column.loading && !props.column.error)
+const isDropTarget = computed(() => props.dropTargetId === props.column.id)
+
+function onDragOver(event: DragEvent) {
+  if (!canDrop.value) {
+    return
+  }
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  emit('dragOverColumn', props.column.id)
+}
+
+function onDrop(event: DragEvent) {
+  if (!canDrop.value) {
+    return
+  }
+  event.preventDefault()
+
+  const taskId = Number(event.dataTransfer?.getData('application/x-nexxus-task'))
+  const fromColumnIdRaw = event.dataTransfer?.getData('application/x-nexxus-from-column')
+  if (!Number.isFinite(taskId) || fromColumnIdRaw == null || fromColumnIdRaw === '') {
+    return
+  }
+
+  const fromColumnId = Number.isNaN(Number(fromColumnIdRaw))
+    ? fromColumnIdRaw
+    : Number(fromColumnIdRaw)
+
+  emit('dropTask', {
+    taskId,
+    fromColumnId,
+    toColumnId: props.column.id,
+  })
+}
+</script>
+
+<template>
+  <section
+    class="flex flex-col min-w-72 w-72 shrink-0 rounded-xl border bg-muted/30 transition-colors"
+    :class="isDropTarget
+      ? 'border-aeto-teal ring-2 ring-aeto-teal/30'
+      : 'border-border'"
+    @dragover="onDragOver"
+    @drop="onDrop"
+  >
+    <header class="flex items-center gap-2 px-3 py-2.5 border-b border-border">
+      <UBadge
+        v-if="column.count !== undefined"
+        :label="column.count.toString()"
+        size="md"
+        class="text-white ring-0"
+        :style="{ backgroundColor: column.color }"
+      />
+      <TaskSectionBadgeFallback v-else />
+      <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {{ column.title ?? (column.labelKey ? t(column.labelKey) : '') }}
+      </h3>
+    </header>
+
+    <div class="flex-1 p-2 space-y-2 overflow-y-auto max-h-[calc(100vh-14rem)] min-h-32">
+      <div v-if="column.loading" class="space-y-2">
+        <USkeleton v-for="n in 3" :key="n" class="h-20 w-full rounded-lg" />
+      </div>
+
+      <p v-else-if="column.error" class="px-2 py-6 text-center text-sm text-error">
+        {{ t('tasks.loadError') }}
+      </p>
+
+      <div
+        v-else-if="column.comingSoon && !column.tasks.length"
+        class="px-2 py-8 flex flex-col items-center justify-center gap-2 text-muted-foreground"
+      >
+        <UIcon name="i-lucide-construction" class="h-6 w-6" />
+        <p class="text-sm text-center">{{ t('tasks.comingSoon') }}</p>
+        <p class="text-xs text-center">{{ t('tasks.kanban.dropHint') }}</p>
+      </div>
+
+      <p
+        v-else-if="!column.tasks.length"
+        class="px-2 py-6 text-center text-sm text-muted-foreground"
+      >
+        {{ isDropTarget ? t('tasks.kanban.dropHere') : t('tasks.empty') }}
+      </p>
+
+      <template v-else>
+        <TaskKanbanCard
+          v-for="task in column.tasks"
+          :key="task.id"
+          :task="task"
+          :column-id="column.id"
+          :selected="selectedTaskId === task.id"
+          :dragging="draggingTaskId === task.id"
+          @select="emit('select', $event)"
+          @drag-start="emit('dragStart', $event)"
+          @drag-end="emit('dragEnd')"
+        />
+      </template>
+    </div>
+  </section>
+</template>

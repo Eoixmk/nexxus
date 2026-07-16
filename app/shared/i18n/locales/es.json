@@ -90,6 +90,16 @@
       "kanban": "Kanban",
       "calendar": "Calendario"
     },
+    "kanban": {
+      "columns": {
+        "pending": "Pendiente",
+        "wip": "En progreso",
+        "inReview": "En revisión",
+        "complete": "Completado"
+      },
+      "dropHere": "Suelta aquí",
+      "dropHint": "Puedes soltar tareas aquí"
+    },
     "due": {
       "today": "Hoy",
       "tomorrow": "Mañana",

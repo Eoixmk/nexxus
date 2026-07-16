@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import TaskNewTaskSlideover from '~/features/tasks/components/TaskNewTaskSlideover.vue'
+import TaskDueKanbanView from '~/features/tasks/components/TaskDueKanbanView.vue'
 import TaskDueListView from '~/features/tasks/components/TaskDueListView.vue'
 import TaskGroupByFilter from '~/features/tasks/components/TaskGroupByFilter.vue'
+import TaskGroupKanbanView from '~/features/tasks/components/TaskGroupKanbanView.vue'
 import TaskGroupListView from '~/features/tasks/components/TaskGroupListView.vue'
+import TaskKanbanView from '~/features/tasks/components/TaskKanbanView.vue'
 import TaskListFilters from '~/features/tasks/components/TaskListFilters.vue'
 import TaskListView from '~/features/tasks/components/TaskListView.vue'
+import TaskTopicKanbanView from '~/features/tasks/components/TaskTopicKanbanView.vue'
 import TaskTopicListView from '~/features/tasks/components/TaskTopicListView.vue'
 import TaskViewSwitcher from '~/features/tasks/components/TaskViewSwitcher.vue'
 import type { TaskGroupBy, TaskListFilters as TaskListFiltersState, TaskView } from '~/features/tasks/types/task.types'
@@ -114,14 +118,30 @@ useTitle(t('toolbar.moduleName'))
       :selected-task-id="selectedTaskId"
       @select="openTask"
     />
-
-    <div
-      v-else-if="view === 'list'"
-      class="p-10 flex flex-col items-center justify-center text-center gap-2 text-muted-foreground"
-    >
-      <UIcon name="i-lucide-construction" class="h-8 w-8" />
-      <p class="text-sm">{{ t('tasks.comingSoon') }}</p>
-    </div>
+    <TaskKanbanView
+      v-else-if="view === 'kanban' && groupBy === 'all'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
+    <TaskDueKanbanView
+      v-else-if="view === 'kanban' && groupBy === 'due'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
+    <TaskTopicKanbanView
+      v-else-if="view === 'kanban' && groupBy === 'topic'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
+    <TaskGroupKanbanView
+      v-else-if="view === 'kanban' && groupBy === 'group'"
+      :filters="listFilters"
+      :selected-task-id="selectedTaskId"
+      @select="openTask"
+    />
 
     <div
       v-else

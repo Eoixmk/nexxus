@@ -1,0 +1,33 @@
+<script setup lang="ts">
+import TaskKanbanBoard from '~/features/tasks/components/TaskKanbanBoard.vue'
+import type { TaskListFilters } from '~/features/tasks/types/task.types'
+import { sectionsToKanbanColumns } from '~/features/tasks/utils/kanban.util'
+
+const props = withDefaults(
+  defineProps<{
+    filters: TaskListFilters
+    selectedTaskId?: number | null
+  }>(),
+  {
+    selectedTaskId: null,
+  },
+)
+
+const emit = defineEmits<{
+  select: [taskId: number]
+}>()
+
+const { users, sections } = useAssignedTasks(() => props.filters)
+
+const columns = computed(() => sectionsToKanbanColumns(sections.value))
+</script>
+
+<template>
+  <TaskKanbanBoard
+    :columns="columns"
+    :selected-task-id="selectedTaskId"
+    :loading="users.isPending.value"
+    :error="users.isError.value"
+    @select="emit('select', $event)"
+  />
+</template>

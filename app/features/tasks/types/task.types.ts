@@ -36,7 +36,7 @@ export type TaskGroupBy = 'all' | 'due' | 'topic' | 'group'
 
 export type TaskSectionKey = 'urgent' | 'today' | 'upcoming'
 
-/** Filtros de query compartidos por todas las listas de tareas. */
+/** Filtros de query compartidos por listas y Kanban. */
 export interface TaskListFilters {
   short_description?: string
   type?: TaskType
@@ -133,4 +133,36 @@ export interface AssignedTaskCount {
   id: number
   username: string
   total: number
+}
+
+/** Columnas del tablero Kanban (status o agrupaciones dinámicas). */
+export type KanbanStatusColumnId = 'pending' | 'wip' | 'in_review' | 'complete'
+
+export interface KanbanCounts {
+  pending: number
+  wip: number
+  in_review: number
+  complete: number
+}
+
+export interface KanbanColumn {
+  id: string | number
+  /** Título fijo (proyectos, usuarios). */
+  title?: string
+  /** Clave i18n cuando no hay title. */
+  labelKey?: string
+  color: string
+  count?: number
+  tasks: Task[]
+  loading: boolean
+  error: boolean
+  /** Columnas cuyo endpoint de lista aún no está listo. */
+  comingSoon?: boolean
+}
+
+/** Payload local de mover una tarea entre columnas (API pendiente). */
+export interface KanbanTaskMove {
+  taskId: number
+  fromColumnId: string | number
+  toColumnId: string | number
 }
