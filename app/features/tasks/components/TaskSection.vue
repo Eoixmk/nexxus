@@ -40,20 +40,17 @@ const { t } = useI18n()
           class="h-3.5 w-3.5 text-muted-foreground transition-transform"
           :class="{ '-rotate-90': !open }"
         />
-        <span
-          class="h-2 w-2 rounded-full shrink-0"
+        <UBadge
+          v-if="count !== undefined"
+          :label="count.toString()"
+          size="md"
+          class="text-white ring-0 shrink-0"
           :style="{ backgroundColor: dotColor }"
         />
+        <TaskSectionBadgeFallback v-else />
         <span class="text-xs font-semibold uppercase tracking-wider text-foreground">
           {{ title }}
         </span>
-        <span
-          v-if="count !== undefined"
-          class="ml-auto text-[11px] font-mono text-muted-foreground"
-        >
-          {{ count }}
-        </span>
-        <TaskSectionBadgeFallback v-else class="ml-auto" />
       </button>
     </template>
 
