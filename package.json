@@ -10,6 +10,10 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.21",
+    "@fullcalendar/daygrid": "^6.1.21",
+    "@fullcalendar/interaction": "^6.1.21",
+    "@fullcalendar/vue3": "^6.1.21",
     "@nuxt/ui": "^4.9.0",
     "@nuxtjs/i18n": "^10.4.0",
     "@tanstack/vue-query": "^5.101.2",
