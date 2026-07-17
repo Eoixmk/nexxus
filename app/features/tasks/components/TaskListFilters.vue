@@ -58,45 +58,54 @@ function setBooleanFilter(key: 'overdue' | 'completed' | 'multiple_close', value
 </script>
 
 <template>
-  <div class="mb-2 rounded-lg border border-border bg-card px-3 py-2 flex items-center gap-3 flex-wrap">
-    <UFormField :label="t('tasks.filterType')" class="min-w-40">
+  <div class="mb-2 rounded-lg border border-border bg-card px-3 py-2 flex items-end gap-3 flex-wrap">
+    <UFormField :label="t('tasks.filterType')" class="min-w-36">
       <USelect
         v-model="selectedType"
         :items="typeItems"
         :placeholder="t('tasks.filterTypePlaceholder')"
-        class="w-44"
+        size="sm"
+        class="w-40"
       />
     </UFormField>
 
-    <UFormField :label="t('tasks.filterProject')" class="min-w-40">
+    <span class="hidden sm:block h-8 w-px bg-border" aria-hidden="true" />
+
+    <UFormField :label="t('tasks.filterProject')" class="min-w-36">
       <USelect
         v-model="selectedProject"
         :items="projectSelectItems"
         :placeholder="t('tasks.filterProjectPlaceholder')"
         :loading="projects.isPending.value"
-        class="w-52"
+        size="sm"
+        class="w-48"
       />
     </UFormField>
 
-    <div class="flex items-center gap-4 flex-wrap pt-1">
-      <label class="inline-flex items-center gap-2 text-sm text-foreground cursor-pointer">
+    <span class="hidden sm:block h-8 w-px bg-border" aria-hidden="true" />
+
+    <div class="flex items-center gap-4 flex-wrap h-8">
+      <label class="inline-flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
         <USwitch
+          size="sm"
           :model-value="!!filters.overdue"
           @update:model-value="setBooleanFilter('overdue', $event)"
         />
         {{ t('tasks.filterOverdue') }}
       </label>
 
-      <label class="inline-flex items-center gap-2 text-sm text-foreground cursor-pointer">
+      <label class="inline-flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
         <USwitch
+          size="sm"
           :model-value="!!filters.completed"
           @update:model-value="setBooleanFilter('completed', $event)"
         />
         {{ t('tasks.filterCompleted') }}
       </label>
 
-      <label class="inline-flex items-center gap-2 text-sm text-foreground cursor-pointer">
+      <label class="inline-flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
         <USwitch
+          size="sm"
           :model-value="!!filters.multiple_close"
           @update:model-value="setBooleanFilter('multiple_close', $event)"
         />

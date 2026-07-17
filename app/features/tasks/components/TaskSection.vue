@@ -29,45 +29,48 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <UCollapsible :default-open="true" class="border-b border-border">
+  <UCollapsible :default-open="true">
     <template #default="{ open }">
       <button
         type="button"
-        class="w-full flex items-center gap-2 px-4 py-2.5 hover:bg-muted/50 transition-colors"
+        class="mb-2 w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-muted/50 transition-colors"
       >
         <UIcon
           name="i-lucide-chevron-down"
-          class="h-4 w-4 text-muted-foreground transition-transform"
+          class="h-3.5 w-3.5 text-muted-foreground transition-transform"
           :class="{ '-rotate-90': !open }"
         />
-        <UBadge
-          v-if="count !== undefined"
-          :label="count.toString()"
-          size="md"
-          class="text-white ring-0"
+        <span
+          class="h-2 w-2 rounded-full shrink-0"
           :style="{ backgroundColor: dotColor }"
         />
-        <TaskSectionBadgeFallback v-else />
-        <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <span class="text-xs font-semibold uppercase tracking-wider text-foreground">
           {{ title }}
         </span>
+        <span
+          v-if="count !== undefined"
+          class="ml-auto text-[11px] font-mono text-muted-foreground"
+        >
+          {{ count }}
+        </span>
+        <TaskSectionBadgeFallback v-else class="ml-auto" />
       </button>
     </template>
 
     <template #content>
-      <div v-if="loading" class="px-4 py-3 space-y-2">
-        <USkeleton v-for="n in 3" :key="n" class="h-8 w-full" />
+      <div v-if="loading" class="space-y-1.5">
+        <USkeleton v-for="n in 3" :key="n" class="h-11 w-full rounded-lg" />
       </div>
 
-      <p v-else-if="error" class="px-4 py-4 text-sm text-error">
+      <p v-else-if="error" class="rounded-lg border border-border bg-card px-4 py-4 text-sm text-error">
         {{ t('tasks.loadError') }}
       </p>
 
-      <p v-else-if="!tasks.length" class="px-4 py-4 text-sm text-muted-foreground">
+      <p v-else-if="!tasks.length" class="rounded-lg border border-border bg-card px-4 py-4 text-sm text-muted-foreground">
         {{ t('tasks.empty') }}
       </p>
 
-      <div v-else>
+      <div v-else class="space-y-1.5">
         <TaskItem
           v-for="task in tasks"
           :key="task.id"

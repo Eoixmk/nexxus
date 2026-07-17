@@ -16,6 +16,7 @@
   --sidebar: #fafbfc;
   --sidebar-border: #e6e8eb;
   --sidebar-foreground: #3f434b;
+  --kanban-column: #ededed;
   --ring: #28ceab;
   --aeto-teal: #28ceab;
   --aeto-teal-light: rgba(40, 206, 171, 0.12);
@@ -23,15 +24,16 @@
 }
 
 .dark {
-  --background: #0e1014;
+  --background: #1A1A1A;
   --foreground: #f3f4f6;
-  --card: #15171c;
+  --card: #242424;
   --border: #262a31;
   --muted: #1e2127;
   --muted-foreground: #9aa1ac;
-  --sidebar: #101216;
+  --sidebar: #1F1F1F;
   --sidebar-border: #21252c;
   --sidebar-foreground: #c7ccd4;
+  --kanban-column: #2e2e2e;
   --ring: #28ceab;
   --aeto-teal: #28ceab;
   --aeto-teal-light: rgba(40, 206, 171, 0.15);
@@ -48,6 +50,7 @@
   --color-sidebar: var(--sidebar);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-kanban-column: var(--kanban-column);
   --color-ring: var(--ring);
   --color-aeto-teal: var(--aeto-teal);
   --color-aeto-teal-light: var(--aeto-teal-light);

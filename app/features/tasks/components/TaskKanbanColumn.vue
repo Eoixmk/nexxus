@@ -60,28 +60,29 @@ function onDrop(event: DragEvent) {
 
 <template>
   <section
-    class="flex flex-col min-w-72 w-72 shrink-0 rounded-xl border bg-muted/30 transition-colors"
-    :class="isDropTarget
-      ? 'border-aeto-teal ring-2 ring-aeto-teal/30'
-      : 'border-border'"
-    @dragover="onDragOver"
-    @drop="onDrop"
+    class="flex flex-col w-[280px] shrink-0"
   >
-    <header class="flex items-center gap-2 px-3 py-2.5 border-b border-border">
-      <UBadge
-        v-if="column.count !== undefined"
-        :label="column.count.toString()"
-        size="md"
-        class="text-white ring-0"
-        :style="{ backgroundColor: column.color }"
-      />
-      <TaskSectionBadgeFallback v-else />
-      <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+    <header class="flex items-center justify-between mb-3 px-1">
+      <h3 class="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
         {{ column.title ?? (column.labelKey ? t(column.labelKey) : '') }}
       </h3>
+      <span
+        v-if="column.count !== undefined"
+        class="text-xs font-mono text-muted-foreground ml-2"
+      >
+        {{ column.count }}
+      </span>
+      <TaskSectionBadgeFallback v-else class="ml-2" />
     </header>
 
-    <div class="flex-1 p-2 space-y-2 overflow-y-auto max-h-[calc(100vh-14rem)] min-h-32">
+    <div
+      class="flex-1 rounded-xl bg-kanban-column p-2 space-y-2 min-h-[200px] transition-colors"
+      :class="isDropTarget
+        ? 'ring-2 ring-aeto-teal/40'
+        : ''"
+      @dragover="onDragOver"
+      @drop="onDrop"
+    >
       <div v-if="column.loading" class="space-y-2">
         <USkeleton v-for="n in 3" :key="n" class="h-20 w-full rounded-lg" />
       </div>

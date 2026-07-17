@@ -47,8 +47,8 @@ function onDropTask(payload: KanbanTaskMove) {
 </script>
 
 <template>
-  <div class="px-4 py-4 overflow-x-auto">
-    <div v-if="loading && !localColumns.length" class="flex items-start gap-3">
+  <div class="overflow-x-auto pb-2">
+    <div v-if="loading && !localColumns.length" class="flex items-start gap-4">
       <USkeleton v-for="n in 3" :key="n" class="h-64 w-72 shrink-0 rounded-xl" />
     </div>
 
@@ -60,7 +60,7 @@ function onDropTask(payload: KanbanTaskMove) {
       {{ t('tasks.empty') }}
     </p>
 
-    <div v-else class="flex items-start gap-3 min-w-max">
+    <div v-else class="flex items-start gap-4 min-w-max">
       <TaskKanbanColumn
         v-for="column in localColumns"
         :key="column.id"

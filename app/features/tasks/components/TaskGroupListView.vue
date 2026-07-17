@@ -34,7 +34,7 @@ const { users, sections } = useAssignedTasks(() => props.filters)
       {{ t('tasks.empty') }}
     </p>
 
-    <template v-else>
+    <div v-else class="space-y-6">
       <TaskSection
         v-for="section in sections"
         :key="section.id"
@@ -47,6 +47,6 @@ const { users, sections } = useAssignedTasks(() => props.filters)
         :selected-task-id="selectedTaskId"
         @select="$emit('select', $event)"
       />
-    </template>
+    </div>
   </div>
 </template>

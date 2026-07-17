@@ -13,14 +13,14 @@ const views: { value: TaskView, icon: string, labelKey: string }[] = [
 </script>
 
 <template>
-  <div class="inline-flex items-center gap-1 p-1 rounded-md bg-muted">
+  <div class="inline-flex p-0.5 rounded-md border border-border bg-background">
     <button
       v-for="view in views"
       :key="view.value"
       type="button"
-      class="px-2.5 py-1 text-xs rounded flex items-center gap-1.5 transition-colors"
+      class="px-2.5 py-1 text-xs rounded inline-flex items-center gap-1.5 transition-colors"
       :class="model === view.value
-        ? 'bg-card text-foreground shadow-sm font-medium'
+        ? 'bg-aeto-teal-light text-aeto-teal-dark font-semibold'
         : 'text-muted-foreground hover:text-foreground'"
       @click="model = view.value"
     >

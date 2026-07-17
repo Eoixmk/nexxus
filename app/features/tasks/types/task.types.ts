@@ -63,6 +63,12 @@ export interface TaskProcessEntry {
   created_at: string
 }
 
+/** Asignado en listados / Kanban (primera letra del username). */
+export interface TaskAssignee {
+  id: number
+  username: string
+}
+
 export interface Task {
   id: number
   short_description: string
@@ -76,10 +82,11 @@ export interface Task {
   limit_date: string | null
   created_at: string
   close_approvals: TaskCloseApproval[]
+  assigned_to?: TaskAssignee[]
 }
 
 /** Detalle completo de GET /api/tasks/:id/ */
-export interface TaskDetail extends Task {
+export interface TaskDetail extends Omit<Task, 'assigned_to'> {
   long_description: string
   effort: TaskEffort | string | null
   assigned_to: number[]

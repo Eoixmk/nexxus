@@ -21,7 +21,7 @@ const { counts, urgent, today, upcoming } = useTasks(() => props.filters)
 </script>
 
 <template>
-  <div>
+  <div class="space-y-6">
     <TaskSection
       :title="t('tasks.sections.urgent')"
       dot-color="#dc2626"

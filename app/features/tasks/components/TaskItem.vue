@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TaskAssigneeAvatars from '~/features/tasks/components/TaskAssigneeAvatars.vue'
 import type { Task } from '~/features/tasks/types/task.types'
 
 const props = withDefaults(
@@ -21,6 +22,7 @@ const typeMeta = computed(() => taskTypeMeta(props.task.type))
 const priorityMeta = computed(() => taskPriorityMeta(props.task.priority))
 const barColor = computed(() => taskBarColor(props.task))
 const requiresAttention = computed(() => taskRequiresAttention(props.task))
+const assignees = computed(() => props.task.assigned_to ?? [])
 
 const dueDiff = computed(() => diffInDays(props.task.limit_date))
 const isOverdue = computed(() => dueDiff.value !== null && dueDiff.value < 0)
@@ -54,13 +56,13 @@ function onSelect() {
   <div
     role="button"
     tabindex="0"
-    class="relative flex items-center gap-3 pl-4 pr-4 py-3 border-b border-border hover:bg-muted/50 transition-colors cursor-pointer"
+    class="group relative flex items-center gap-3 rounded-lg border border-border bg-card pl-4 pr-3 py-2.5 hover:border-muted-foreground/50 hover:brightness-110 transition-[filter,border-color] cursor-pointer"
     @click="onSelect"
     @keydown.enter.prevent="onSelect"
     @keydown.space.prevent="onSelect"
   >
     <span
-      class="absolute left-0 top-0 bottom-0 w-1 rounded-r"
+      class="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-lg"
       :style="{ backgroundColor: barColor }"
     />
 
@@ -81,43 +83,47 @@ function onSelect() {
       />
     </button>
 
-    <span
-      class="min-w-0 text-sm truncate transition-colors"
-      :class="selected
-        ? 'text-muted-foreground line-through'
-        : 'text-foreground'"
-    >
-      {{ task.short_description }}
-    </span>
+    <div class="min-w-0 flex-1 flex items-center gap-2">
+      <span
+        class="min-w-0 text-sm truncate transition-colors"
+        :class="selected
+          ? 'text-muted-foreground line-through'
+          : 'text-foreground'"
+      >
+        {{ task.short_description }}
+      </span>
 
-    <div class="flex items-center gap-1.5 shrink-0">
-      <UBadge
-        :icon="typeMeta.icon"
-        :label="t(typeMeta.labelKey)"
-        color="neutral"
-        variant="soft"
-        size="sm"
-      />
-      <UBadge
-        v-if="priorityMeta"
-        :label="t(priorityMeta.labelKey)"
-        :color="priorityMeta.color"
-        variant="soft"
-        size="sm"
-      />
-      <UBadge
-        v-if="requiresAttention"
-        icon="i-lucide-triangle-alert"
-        :label="t('tasks.requiresAttention')"
-        color="error"
-        variant="soft"
-        size="sm"
-        class="hidden lg:inline-flex"
-      />
+      <div class="flex items-center gap-1.5 shrink-0">
+        <UBadge
+          :icon="typeMeta.icon"
+          :label="t(typeMeta.labelKey)"
+          color="neutral"
+          variant="soft"
+          size="sm"
+        />
+        <UBadge
+          v-if="priorityMeta"
+          :label="t(priorityMeta.labelKey)"
+          :color="priorityMeta.color"
+          variant="soft"
+          size="sm"
+        />
+        <UBadge
+          v-if="requiresAttention"
+          icon="i-lucide-triangle-alert"
+          :label="t('tasks.requiresAttention')"
+          color="error"
+          variant="soft"
+          size="sm"
+          class="hidden lg:inline-flex"
+        />
+      </div>
     </div>
 
+    <TaskAssigneeAvatars :assignees="assignees" />
+
     <span
-      class="w-16 text-right text-xs shrink-0 ml-auto"
+      class="w-16 text-right text-xs font-mono tabular-nums shrink-0"
       :class="isOverdue ? 'text-error font-medium' : 'text-muted-foreground'"
     >
       {{ dueLabel }}

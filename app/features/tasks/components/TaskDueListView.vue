@@ -21,7 +21,7 @@ const { counts, today, tomorrow, week, month, noDate } = useOverdueTasks(() => p
 </script>
 
 <template>
-  <div>
+  <div class="space-y-6">
     <TaskSection
       :title="t('tasks.overdueSections.today')"
       dot-color="#dc2626"

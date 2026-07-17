@@ -1,4 +1,25 @@
-import type { Task } from '~/features/tasks/types/task.types'
+import type { Task, TaskAssignee } from '~/features/tasks/types/task.types'
+
+const ASSIGNEE_AVATAR_COLORS = [
+  '#f59e0b',
+  '#28ceab',
+  '#4c6ef5',
+  '#7c3aed',
+  '#dc2626',
+  '#0891b2',
+  '#db2777',
+  '#65a30d',
+] as const
+
+/** Primera letra del username (no nombre+apellido). */
+export function taskAssigneeInitial(username: string): string {
+  const source = username.trim()
+  return source ? source[0]!.toUpperCase() : '?'
+}
+
+export function taskAssigneeColor(assignee: TaskAssignee): string {
+  return ASSIGNEE_AVATAR_COLORS[Math.abs(assignee.id) % ASSIGNEE_AVATAR_COLORS.length]!
+}
 
 type BadgeColor = 'error' | 'warning' | 'neutral'
 
