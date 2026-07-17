@@ -33,7 +33,8 @@ const companyId = 1
 
 const formId = 'new-task-form'
 const submitError = ref('')
-const isEditing = computed(() => taskId.value != null)
+/** Con taskId el slideover es detalle view-only (sin submit ni edición). */
+const isDetailView = computed(() => taskId.value != null)
 
 const { mutateAsync: createTask, isPending } = useCreateTask()
 const taskDetailQuery = useTaskDetail(() => (open.value ? taskId.value : null))
@@ -158,9 +159,7 @@ function validationMessage(code: string): string {
 }
 
 async function onSubmit(_event: FormSubmitEvent<NewTaskFormState>) {
-  // En modo edición solo se prellenan los campos (aún no hay update).
-  if (isEditing.value) {
-    close()
+  if (isDetailView.value) {
     return
   }
 
@@ -181,7 +180,7 @@ async function onSubmit(_event: FormSubmitEvent<NewTaskFormState>) {
 }
 
 watch(() => state.taskReviewer, (reviewers) => {
-  if (state.type !== 'multiple_close') {
+  if (isDetailView.value || state.type !== 'multiple_close') {
     return
   }
   const currentUserId = user.value?.id
@@ -191,12 +190,18 @@ watch(() => state.taskReviewer, (reviewers) => {
 }, { deep: true })
 
 watch(() => state.type, (type) => {
+  if (isDetailView.value) {
+    return
+  }
   if (type === 'multiple_close') {
     ensureCurrentUserInReviewers()
   }
 })
 
 watch(() => state.urgent, (isUrgent) => {
+  if (isDetailView.value) {
+    return
+  }
   if (isUrgent) {
     state.effort = undefined
   }
@@ -217,9 +222,6 @@ watch(
       return
     }
     applyFormInput(taskDetailToFormInput(detail))
-    if (state.type === 'multiple_close') {
-      ensureCurrentUserInReviewers()
-    }
   },
 )
 </script>
@@ -237,11 +239,11 @@ watch(
     <template #header>
       <div class="flex items-center gap-2 min-w-0">
         <UIcon
-          :name="isEditing ? 'i-lucide-pencil' : 'i-lucide-plus'"
+          :name="isDetailView ? 'i-lucide-file-text' : 'i-lucide-plus'"
           class="h-5 w-5 text-foreground shrink-0"
         />
         <h2 class="text-base font-semibold text-foreground truncate">
-          {{ isEditing ? t('tasks.editTask') : t('tasks.newTask') }}
+          {{ isDetailView ? t('tasks.taskDetail') : t('tasks.newTask') }}
         </h2>
         <UBadge
           :label="t(`tasks.types.${state.type}`)"
@@ -262,7 +264,7 @@ watch(
       >
         <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
           <div
-            v-if="isEditing && taskDetailQuery.isPending.value"
+            v-if="isDetailView && taskDetailQuery.isPending.value"
             class="space-y-3"
           >
             <USkeleton class="h-10 w-full" />
@@ -272,7 +274,7 @@ watch(
           </div>
 
           <UAlert
-            v-else-if="isEditing && taskDetailQuery.isError.value"
+            v-else-if="isDetailView && taskDetailQuery.isError.value"
             color="error"
             variant="subtle"
             :title="t('tasks.loadError')"
@@ -287,7 +289,7 @@ watch(
             class="mb-2"
           />
 
-          <template v-if="!(isEditing && (taskDetailQuery.isPending.value || taskDetailQuery.isError.value))">
+          <template v-if="!(isDetailView && (taskDetailQuery.isPending.value || taskDetailQuery.isError.value))">
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {{ t('tasks.form.taskType') }}
@@ -298,10 +300,16 @@ watch(
                 :key="option.value"
                 type="button"
                 class="rounded-lg border p-3 text-left transition-colors"
-                :class="state.type === option.value
-                  ? 'border-aeto-teal bg-aeto-teal-light'
-                  : 'border-border bg-card hover:border-muted-foreground/40'"
-                @click="state.type = option.value"
+                :class="[
+                  state.type === option.value
+                    ? 'border-aeto-teal bg-aeto-teal-light'
+                    : 'border-border bg-card',
+                  isDetailView
+                    ? 'cursor-default opacity-90'
+                    : 'hover:border-muted-foreground/40',
+                ]"
+                :disabled="isDetailView"
+                @click="!isDetailView && (state.type = option.value)"
               >
                 <UIcon
                   :name="option.icon"
@@ -325,11 +333,12 @@ watch(
             <UFormField
               :label="t('tasks.form.volume.countWhat')"
               name="volumeCountWhat"
-              required
+              :required="!isDetailView"
             >
               <UInput
                 v-model="state.volumeCountWhat"
                 :placeholder="t('tasks.form.volume.countWhatPlaceholder')"
+                :disabled="isDetailView"
                 class="w-full"
               />
             </UFormField>
@@ -338,13 +347,14 @@ watch(
               <UFormField
                 :label="t('tasks.form.volume.periodGoal')"
                 name="volumePeriodGoal"
-                required
+                :required="!isDetailView"
               >
                 <UInput
                   v-model="state.volumePeriodGoal"
                   type="number"
                   min="0"
                   :placeholder="t('tasks.form.volume.periodGoalPlaceholder')"
+                  :disabled="isDetailView"
                   class="w-full"
                 />
               </UFormField>
@@ -352,7 +362,7 @@ watch(
               <UFormField
                 :label="t('tasks.form.volume.pointsPerUnit')"
                 name="volumePointsPerUnit"
-                required
+                :required="!isDetailView"
                 :help="t('tasks.form.volume.pointsPerUnitHelp')"
               >
                 <UInput
@@ -360,6 +370,7 @@ watch(
                   type="number"
                   min="0"
                   :placeholder="t('tasks.form.volume.pointsPerUnitPlaceholder')"
+                  :disabled="isDetailView"
                   class="w-full"
                 />
               </UFormField>
@@ -369,14 +380,17 @@ watch(
               <USwitch
                 v-model="state.volumeVerifyDates"
                 :label="t('tasks.form.volume.verifyDates')"
+                :disabled="isDetailView"
               />
               <USwitch
                 v-model="state.volumeRejectDuplicates"
                 :label="t('tasks.form.volume.rejectDuplicates')"
+                :disabled="isDetailView"
               />
               <USwitch
                 v-model="state.volumeNexxaAiAnalysis"
                 :label="t('tasks.form.volume.nexxaAiAnalysis')"
+                :disabled="isDetailView"
               />
             </div>
           </div>
@@ -388,7 +402,10 @@ watch(
             <div>
               <p class="text-sm font-medium text-foreground">
                 {{ t('tasks.form.multipleClose.title') }}
-                <span class="text-error">*</span>
+                <span
+                  v-if="!isDetailView"
+                  class="text-error"
+                >*</span>
               </p>
               <p class="text-xs text-muted-foreground mt-1">
                 {{ t('tasks.form.multipleClose.description') }}
@@ -400,15 +417,21 @@ watch(
               :items="userItems"
               :placeholder="t('tasks.form.multipleClose.searchPlaceholder')"
               :loading="usersQuery.isPending.value"
+              :disabled="isDetailView"
               icon="i-lucide-search"
               class="w-full"
             />
           </div>
 
-          <UFormField :label="t('tasks.form.name')" name="name" required>
+          <UFormField
+            :label="t('tasks.form.name')"
+            name="name"
+            :required="!isDetailView"
+          >
             <UInput
               v-model="state.name"
               :placeholder="t('tasks.form.namePlaceholder')"
+              :disabled="isDetailView"
               class="w-full"
             />
           </UFormField>
@@ -418,38 +441,54 @@ watch(
               v-model="state.description"
               :placeholder="t('tasks.form.descriptionPlaceholder')"
               :rows="3"
+              :disabled="isDetailView"
               class="w-full"
             />
           </UFormField>
 
-          <UFormField :label="t('tasks.form.topic')" name="project" required>
+          <UFormField
+            :label="t('tasks.form.topic')"
+            name="project"
+            :required="!isDetailView"
+          >
             <USelect
               v-model="state.project"
               :items="projectItems"
               :placeholder="t('tasks.form.topicPlaceholder')"
               :loading="projectsQuery.isPending.value"
+              :disabled="isDetailView"
               class="w-full"
             />
           </UFormField>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <UFormField :label="t('tasks.form.assignedTo')" name="assignedTo" required>
+            <UFormField
+              :label="t('tasks.form.assignedTo')"
+              name="assignedTo"
+              :required="!isDetailView"
+            >
               <USelect
                 v-model="state.assignedTo"
                 multiple
                 :items="userItems"
                 :placeholder="t('tasks.form.assignedToPlaceholder')"
                 :loading="usersQuery.isPending.value"
+                :disabled="isDetailView"
                 icon="i-lucide-user-search"
                 class="w-full"
               />
             </UFormField>
 
-            <UFormField :label="t('tasks.form.dueDate')" name="dueDate" required>
+            <UFormField
+              :label="t('tasks.form.dueDate')"
+              name="dueDate"
+              :required="!isDetailView"
+            >
               <UInput
                 v-model="state.dueDate"
                 type="date"
                 icon="i-lucide-calendar"
+                :disabled="isDetailView"
                 class="w-full"
               />
             </UFormField>
@@ -459,12 +498,13 @@ watch(
             <USwitch
               v-model="state.urgent"
               :label="t('tasks.form.markUrgent')"
+              :disabled="isDetailView"
             />
           </UFormField>
 
           <div
             class="space-y-2"
-            :class="state.urgent ? 'opacity-50 pointer-events-none' : ''"
+            :class="!isDetailView && state.urgent ? 'opacity-50 pointer-events-none' : ''"
           >
             <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {{ t('tasks.form.effort') }}
@@ -475,12 +515,12 @@ watch(
                 v-for="option in effortOptions"
                 :key="option.value"
                 type="button"
-                :disabled="state.urgent"
+                :disabled="state.urgent || isDetailView"
                 class="rounded-lg border p-3 text-left transition-colors disabled:cursor-not-allowed"
                 :class="state.effort === option.value
                   ? 'border-aeto-teal bg-aeto-teal-light'
                   : 'border-border bg-card hover:border-muted-foreground/40'"
-                @click="state.effort = state.effort === option.value ? undefined : option.value"
+                @click="!isDetailView && (state.effort = state.effort === option.value ? undefined : option.value)"
               >
                 <UIcon
                   :name="option.icon"
@@ -528,7 +568,10 @@ watch(
               </li>
             </ul>
 
-            <div class="flex flex-wrap gap-2">
+            <div
+              v-if="!isDetailView"
+              class="flex flex-wrap gap-2"
+            >
               <UButton
                 :label="t('tasks.form.nexxtepAccept')"
                 color="primary"
@@ -550,14 +593,14 @@ watch(
     <template #footer>
       <div class="flex items-center justify-end gap-2 w-full">
         <UButton
-          :label="t('tasks.form.cancel')"
+          :label="isDetailView ? t('tasks.form.close') : t('tasks.form.cancel')"
           color="neutral"
           variant="ghost"
           :disabled="isPending"
           @click="close"
         />
         <UButton
-          v-if="!isEditing"
+          v-if="!isDetailView"
           :label="t('tasks.form.create')"
           color="primary"
           type="submit"

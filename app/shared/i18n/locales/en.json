@@ -60,6 +60,7 @@
     "filterCompleted": "Completed",
     "filterMultipleClose": "Multiple close",
     "newTask": "New task",
+    "taskDetail": "Task detail",
     "editTask": "Edit task",
     "comingSoon": "Coming soon",
     "requiresAttention": "Needs attention",
@@ -147,6 +148,7 @@
       "nexxtepAccept": "Yes, let Nexxtep help me",
       "nexxtepDecline": "No, I'll do it myself",
       "cancel": "Cancel",
+      "close": "Close",
       "create": "Create task",
       "createError": "Could not create the task",
       "validation": {

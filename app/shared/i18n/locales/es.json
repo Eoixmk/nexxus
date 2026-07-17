@@ -60,6 +60,7 @@
     "filterCompleted": "Completadas",
     "filterMultipleClose": "Cierre múltiple",
     "newTask": "Nueva tarea",
+    "taskDetail": "Detalle de tarea",
     "editTask": "Editar tarea",
     "comingSoon": "Próximamente",
     "requiresAttention": "Requiere atención",
@@ -147,6 +148,7 @@
       "nexxtepAccept": "Sí, que Nexxtep me ayude",
       "nexxtepDecline": "No, lo hago yo",
       "cancel": "Cancelar",
+      "close": "Cerrar",
       "create": "Crear tarea",
       "createError": "No se pudo crear la tarea",
       "validation": {
