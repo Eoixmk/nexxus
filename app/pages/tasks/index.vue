@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TaskCalendarView from '~/features/tasks/components/TaskCalendarView.client.vue'
 import TaskNewTaskSlideover from '~/features/tasks/components/TaskNewTaskSlideover.vue'
 import TaskDueKanbanView from '~/features/tasks/components/TaskDueKanbanView.vue'
 import TaskDueListView from '~/features/tasks/components/TaskDueListView.vue'
@@ -157,6 +158,10 @@ useTitle(t('toolbar.moduleName'))
         :filters="listFilters"
         :selected-task-id="selectedTaskId"
         @select="openTask"
+      />
+      <TaskCalendarView
+        v-else-if="view === 'calendar'"
+        :filters="listFilters"
       />
 
       <div
