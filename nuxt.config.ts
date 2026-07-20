@@ -20,6 +20,19 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@vueuse/nuxt'],
   css: ['~/assets/css/main.css'],
 
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@fullcalendar/core/locales/es',
+        '@fullcalendar/daygrid',
+        '@fullcalendar/interaction',
+        '@fullcalendar/vue3',
+        '@tanstack/vue-query',
+      ]
+    }
+  },
+
+
   devServer: {
     port: 9000,
   },

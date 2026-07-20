@@ -32,7 +32,9 @@ function onSaveCompany() {
   })
 }
 
-useTitle(t('settings.title'))
+useSeoMeta({
+  title: () => t('settings.title'),
+})
 </script>
 
 <template>

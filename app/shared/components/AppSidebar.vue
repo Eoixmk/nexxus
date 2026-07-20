@@ -24,6 +24,7 @@ const tasksItems: NavItem[] = [
   { labelKey: 'sidebar.dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
   { labelKey: 'sidebar.tasks', icon: 'i-lucide-square-check-big', to: '/tasks' },
   { labelKey: 'sidebar.toAccept', icon: 'i-lucide-inbox', indent: true, badge: 1 }, // mock: aún sin ruta
+  { labelKey: 'sidebar.toUpdate', icon: 'i-lucide-refresh-cw', indent: true, to: '/tasks/to-update' },
   { labelKey: 'sidebar.settings', icon: 'i-lucide-settings', indent: true, to: '/tasks/settings' },
 ]
 

@@ -13,7 +13,9 @@ function toggleTheme() {
   colorMode.preference = isDark.value ? 'light' : 'dark'
 }
 
-useTitle(t('hub.title'))
+useSeoMeta({
+  title: () => t('hub.title'),
+})
 </script>
 
 <template>

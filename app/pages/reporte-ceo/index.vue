@@ -4,7 +4,9 @@ definePageMeta({ middleware: 'auth' })
 
 const { t } = useI18n()
 
-useTitle(t('ceoReport.title'))
+useSeoMeta({
+  title: () => t('ceoReport.title'),
+})
 </script>
 
 <template>

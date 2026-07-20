@@ -66,7 +66,9 @@ async function onCreateTheme() {
   }
 }
 
-useTitle(t('taskSettings.title'))
+useSeoMeta({
+  title: () => t('taskSettings.title'),
+})
 </script>
 
 <template>

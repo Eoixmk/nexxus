@@ -33,6 +33,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "toAccept": "To accept",
+    "toUpdate": "To update",
     "settings": "Settings",
     "masterSettings": "Settings"
   },
@@ -62,6 +63,17 @@
     "newTask": "New task",
     "taskDetail": "Task detail",
     "editTask": "Edit task",
+    "toUpdate": {
+      "title": "To update",
+      "placeholder": "Tasks pending update will appear here. Content will be laid out soon.",
+      "sections": {
+        "pending": "Pending",
+        "urgent": "Urgent",
+        "delay": "Delayed",
+        "critical": "Critical",
+        "accepted": "Accepted"
+      }
+    },
     "comingSoon": "Coming soon",
     "requiresAttention": "Needs attention",
     "complete": "Complete task",

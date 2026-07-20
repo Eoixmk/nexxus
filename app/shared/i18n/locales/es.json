@@ -33,6 +33,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tareas",
     "toAccept": "Por aceptar",
+    "toUpdate": "Por actualizar",
     "settings": "Configuración",
     "masterSettings": "Configuración"
   },
@@ -62,6 +63,17 @@
     "newTask": "Nueva tarea",
     "taskDetail": "Detalle de tarea",
     "editTask": "Editar tarea",
+    "toUpdate": {
+      "title": "Por actualizar",
+      "placeholder": "Aquí se mostrarán las tareas por actualizar. El contenido se maquetará próximamente.",
+      "sections": {
+        "pending": "Pendiente",
+        "urgent": "Urgente",
+        "delay": "Retraso",
+        "critical": "Crítico",
+        "accepted": "Aceptadas"
+      }
+    },
     "comingSoon": "Próximamente",
     "requiresAttention": "Requiere atención",
     "complete": "Completar tarea",
