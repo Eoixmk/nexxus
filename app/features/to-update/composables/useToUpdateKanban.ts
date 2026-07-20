@@ -1,16 +1,16 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { KanbanColumn, TaskListFilters } from '~/features/tasks/types/task.types'
-import { createEmptyToUpdateSections } from '~/features/to-update/utils/to-update-sections.util'
 
 /**
  * Server state de Por actualizar (vista Kanban).
  *
- * Las columnas reflejan las mismas secciones que la lista.
- * TODO: cablear endpoints por columna cuando estén disponibles.
+ * Reutiliza los mismos endpoints close/* que la lista.
  */
-export function useToUpdateKanban(_filters: MaybeRefOrGetter<TaskListFilters> = {}) {
+export function useToUpdateKanban(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
+  const { sections } = useToUpdateTasks(filters)
+
   const columns = computed<KanbanColumn[]>(() =>
-    createEmptyToUpdateSections().map(section => ({
+    sections.value.map(section => ({
       id: section.id,
       labelKey: section.labelKey,
       color: section.color,

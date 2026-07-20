@@ -9,7 +9,7 @@ interface NavItem {
   badge?: number
 }
 
-const { t } = useI18n()
+const { t, locale, setLocale } = useI18n()
 const { user, logout } = useAuth()
 const { collapsed } = useSidebar()
 const route = useRoute()
@@ -24,7 +24,7 @@ const tasksItems: NavItem[] = [
   { labelKey: 'sidebar.dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
   { labelKey: 'sidebar.tasks', icon: 'i-lucide-square-check-big', to: '/tasks' },
   { labelKey: 'sidebar.toAccept', icon: 'i-lucide-inbox', indent: true, badge: 1 }, // mock: aún sin ruta
-  { labelKey: 'sidebar.toUpdate', icon: 'i-lucide-refresh-cw', indent: true, to: '/tasks/to-update' },
+  { labelKey: 'sidebar.toUpdate', icon: 'i-lucide-refresh-cw', indent: true, to: '/tasks/pending-approval' },
   { labelKey: 'sidebar.settings', icon: 'i-lucide-settings', indent: true, to: '/tasks/settings' },
 ]
 
@@ -52,10 +52,32 @@ function navigate(item: NavItem) {
 const userMenuItems = computed<DropdownMenuItem[][]>(() => [
   [
     {
-      label: t('common.settings'),
-      icon: 'i-lucide-settings',
-      to: '/settings',
+      label: t('settings.language.title'),
+      icon: 'i-lucide-languages',
+      type: 'label',
     },
+    {
+      label: 'ES',
+      type: 'checkbox',
+      checked: locale.value === 'es',
+      onUpdateChecked(checked) {
+        if (checked) {
+          void setLocale('es')
+        }
+      },
+    },
+    {
+      label: 'EN',
+      type: 'checkbox',
+      checked: locale.value === 'en',
+      onUpdateChecked(checked) {
+        if (checked) {
+          void setLocale('en')
+        }
+      },
+    },
+  ],
+  [
     {
       label: t('common.logout'),
       icon: 'i-lucide-log-out',

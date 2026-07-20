@@ -33,7 +33,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tasks",
     "toAccept": "To accept",
-    "toUpdate": "To update",
+    "toUpdate": "Pending approval",
     "settings": "Settings",
     "masterSettings": "Settings"
   },
@@ -64,12 +64,12 @@
     "taskDetail": "Task detail",
     "editTask": "Edit task",
     "toUpdate": {
-      "title": "To update",
-      "placeholder": "Tasks pending update will appear here. Content will be laid out soon.",
+      "title": "Pending approval",
+      "placeholder": "Tasks pending approval will appear here. Content will be laid out soon.",
       "sections": {
         "pending": "Pending",
         "urgent": "Urgent",
-        "delay": "Delayed",
+        "delayed": "Delayed",
         "critical": "Critical",
         "accepted": "Accepted"
       }

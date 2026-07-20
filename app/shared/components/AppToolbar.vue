@@ -18,7 +18,7 @@ const moduleName = computed(() => {
   if (route.path.startsWith('/tasks/settings')) {
     return t('taskSettings.title')
   }
-  if (route.path.startsWith('/tasks/to-update')) {
+  if (route.path.startsWith('/tasks/pending-approval')) {
     return t('tasks.toUpdate.title')
   }
   if (route.path.startsWith('/settings')) {

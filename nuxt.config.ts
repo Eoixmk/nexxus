@@ -20,6 +20,15 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui', '@nuxtjs/i18n', '@vueuse/nuxt'],
   css: ['~/assets/css/main.css'],
 
+  app: {
+    head: {
+      titleTemplate: 'Nexxus - %s',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+    },
+  },
+
   vite: {
     optimizeDeps: {
       include: [

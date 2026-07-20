@@ -63,7 +63,7 @@ export interface TaskProcessEntry {
   created_at: string
 }
 
-/** Asignado en listados / Kanban (primera letra del username). */
+/** Asignado en listados / Kanban (dos primeras letras del username). */
 export interface TaskAssignee {
   id: number
   username: string

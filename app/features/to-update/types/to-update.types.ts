@@ -4,7 +4,7 @@ import type { Task } from '~/features/tasks/types/task.types'
 export type ToUpdateSectionId =
   | 'pending'
   | 'urgent'
-  | 'delay'
+  | 'delayed'
   | 'critical'
   | 'accepted'
 
@@ -18,11 +18,11 @@ export interface ToUpdateSection {
   error: boolean
 }
 
-/** Contadores esperados cuando lleguen los endpoints. */
+/** Contadores de GET /api/tasks/company/:id/close/counts/ */
 export interface ToUpdateCounts {
   pending: number
   urgent: number
-  delay: number
+  delayed: number
   critical: number
   accepted: number
 }

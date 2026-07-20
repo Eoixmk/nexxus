@@ -1,6 +1,6 @@
-import type { ToUpdateSection, ToUpdateSectionId } from '~/features/to-update/types/to-update.types'
+import type { ToUpdateSectionId } from '~/features/to-update/types/to-update.types'
 
-/** Definición estática de secciones (colores y labels). Los datos vendrán de la API. */
+/** Definición estática de secciones (colores y labels). */
 export const TO_UPDATE_SECTION_META: Record<
   ToUpdateSectionId,
   { labelKey: string, color: string }
@@ -13,8 +13,8 @@ export const TO_UPDATE_SECTION_META: Record<
     labelKey: 'tasks.toUpdate.sections.urgent',
     color: '#dc2626',
   },
-  delay: {
-    labelKey: 'tasks.toUpdate.sections.delay',
+  delayed: {
+    labelKey: 'tasks.toUpdate.sections.delayed',
     color: '#f97316',
   },
   critical: {
@@ -30,20 +30,7 @@ export const TO_UPDATE_SECTION_META: Record<
 export const TO_UPDATE_SECTION_ORDER: ToUpdateSectionId[] = [
   'pending',
   'urgent',
-  'delay',
+  'delayed',
   'critical',
   'accepted',
 ]
-
-/** Secciones vacías hasta cablear endpoints. */
-export function createEmptyToUpdateSections(): ToUpdateSection[] {
-  return TO_UPDATE_SECTION_ORDER.map(id => ({
-    id,
-    labelKey: TO_UPDATE_SECTION_META[id].labelKey,
-    color: TO_UPDATE_SECTION_META[id].color,
-    count: 0,
-    tasks: [],
-    loading: false,
-    error: false,
-  }))
-}

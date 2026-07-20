@@ -11,10 +11,10 @@ const ASSIGNEE_AVATAR_COLORS = [
   '#65a30d',
 ] as const
 
-/** Primera letra del username (no nombre+apellido). */
+/** Dos primeras letras del username (no nombre+apellido). */
 export function taskAssigneeInitial(username: string): string {
   const source = username.trim()
-  return source ? source[0]!.toUpperCase() : '?'
+  return source ? source.slice(0, 2).toUpperCase() : '?'
 }
 
 export function taskAssigneeColor(assignee: TaskAssignee): string {

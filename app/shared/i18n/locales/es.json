@@ -33,7 +33,7 @@
     "dashboard": "Dashboard",
     "tasks": "Tareas",
     "toAccept": "Por aceptar",
-    "toUpdate": "Por actualizar",
+    "toUpdate": "Pendiente de aprobación",
     "settings": "Configuración",
     "masterSettings": "Configuración"
   },
@@ -64,12 +64,12 @@
     "taskDetail": "Detalle de tarea",
     "editTask": "Editar tarea",
     "toUpdate": {
-      "title": "Por actualizar",
-      "placeholder": "Aquí se mostrarán las tareas por actualizar. El contenido se maquetará próximamente.",
+      "title": "Pendiente de aprobación",
+      "placeholder": "Aquí se mostrarán las tareas pendientes de aprobación. El contenido se maquetará próximamente.",
       "sections": {
         "pending": "Pendiente",
         "urgent": "Urgente",
-        "delay": "Retraso",
+        "delayed": "Retraso",
         "critical": "Crítico",
         "accepted": "Aceptadas"
       }
