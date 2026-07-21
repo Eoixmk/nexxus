@@ -1,7 +1,5 @@
-import { useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { PaginatedResponse } from '~/shared/types/api.types'
-import type { Task, TaskListFilters } from '~/features/tasks/types/task.types'
+import type { TaskListFilters } from '~/features/tasks/types/task.types'
 import type {
   ToUpdateCounts,
   ToUpdateSection,
@@ -11,58 +9,26 @@ import {
   TO_UPDATE_SECTION_META,
   TO_UPDATE_SECTION_ORDER,
 } from '~/features/to-update/utils/to-update-sections.util'
-import { extractResults, toTaskListQuery } from '~/features/tasks/utils/task-api.util'
+import { createCompanyTasksApi } from '~/features/tasks/composables/createCompanyTasksApi'
+import { extractResults } from '~/shared/utils/paginated.util'
 
 /**
- * Server state de Por actualizar (vista Lista) vía TanStack Query.
+ * Server state de Pending approval (vista Lista) vía TanStack Query.
  *
  * Endpoints: /api/tasks/company/:id/close/{counts|pending|urgent|delayed|critical|accepted}/
- * Reutiliza los mismos query params que las listas (`toTaskListQuery`).
- *
- * NOTA: la empresa está fija en 1 por ahora (TODO: derivar de la empresa
- * seleccionada).
  */
 export function useToUpdateTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
-  const { $api } = useNuxtApp()
-  const companyId = 1
+  const api = createCompanyTasksApi(filters)
+  const scope = ['close']
 
-  const base = `/api/tasks/company/${companyId}/close`
-  const query = computed(() => toTaskListQuery(toValue(filters)))
+  const counts = api.countsQuery<ToUpdateCounts>(scope, '/close/counts/')
+  const pending = api.listQuery([...scope, 'pending'], '/close/pending/')
+  const urgent = api.listQuery([...scope, 'urgent'], '/close/urgent/')
+  const delayed = api.listQuery([...scope, 'delayed'], '/close/delayed/')
+  const critical = api.listQuery([...scope, 'critical'], '/close/critical/')
+  const accepted = api.listQuery([...scope, 'accepted'], '/close/accepted/')
 
-  const counts = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'close', 'counts', query.value]),
-    queryFn: () => $api<ToUpdateCounts>(`${base}/counts/`, { query: query.value }),
-  })
-
-  const pending = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'close', 'pending', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/pending/`, { query: query.value }),
-  })
-
-  const urgent = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'close', 'urgent', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/urgent/`, { query: query.value }),
-  })
-
-  const delayed = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'close', 'delayed', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/delayed/`, { query: query.value }),
-  })
-
-  const critical = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'close', 'critical', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/critical/`, { query: query.value }),
-  })
-
-  const accepted = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'close', 'accepted', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/accepted/`, { query: query.value }),
-  })
-
-  const sectionQueries: Record<
-    ToUpdateSectionId,
-    ReturnType<typeof useQuery<PaginatedResponse<Task>>>
-  > = {
+  const sectionQueries: Record<ToUpdateSectionId, typeof pending> = {
     pending,
     urgent,
     delayed,

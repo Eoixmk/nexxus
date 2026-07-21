@@ -1,7 +1,8 @@
 import { useQueries, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import type { PaginatedResponse } from '~/shared/types/api.types'
-import { extractResults, toTaskListQuery } from '~/features/tasks/utils/task-api.util'
+import { extractResults } from '~/shared/utils/paginated.util'
+import { toTaskListQuery } from '~/features/tasks/utils/task-api.util'
 import type {
   ProjectDropdown,
   ProjectTaskCount,

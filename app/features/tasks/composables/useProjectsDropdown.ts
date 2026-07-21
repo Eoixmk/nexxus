@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import type { PaginatedResponse } from '~/shared/types/api.types'
 import type { ProjectDropdown } from '~/features/tasks/types/task.types'
-import { extractResults } from '~/features/tasks/utils/task-api.util'
+import { extractResults } from '~/shared/utils/paginated.util'
 
 /**
  * Dropdown de proyectos de la empresa.

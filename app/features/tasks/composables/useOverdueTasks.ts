@@ -1,51 +1,54 @@
-import { useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { PaginatedResponse } from '~/shared/types/api.types'
-import type { OverdueCounts, Task, TaskListFilters } from '~/features/tasks/types/task.types'
-import { toTaskListQuery } from '~/features/tasks/utils/task-api.util'
+import type { OverdueCounts, TaskBoardSection, TaskListFilters } from '~/features/tasks/types/task.types'
+import { createCompanyTasksApi } from '~/features/tasks/composables/createCompanyTasksApi'
+import { extractResults } from '~/shared/utils/paginated.util'
+
+const OVERDUE_SECTIONS = [
+  { id: 'today', path: '/overdue/today/', labelKey: 'tasks.overdueSections.today', color: '#dc2626', countKey: 'today' as const },
+  { id: 'tomorrow', path: '/overdue/tomorrow/', labelKey: 'tasks.overdueSections.tomorrow', color: '#f97316', countKey: 'tomorrow' as const },
+  { id: 'week', path: '/overdue/week/', labelKey: 'tasks.overdueSections.week', color: '#6366f1', countKey: 'week' as const },
+  { id: 'month', path: '/overdue/month/', labelKey: 'tasks.overdueSections.month', color: '#8b5cf6', countKey: 'month' as const },
+  { id: 'no_date', path: '/overdue/no_date/', labelKey: 'tasks.overdueSections.noDate', color: '#6b7280', countKey: 'no_date' as const },
+] as const
 
 /**
  * Server state de tareas agrupadas por vencimiento vía TanStack Query.
- *
- * NOTA: la empresa está fija en 1 por ahora (TODO: derivar de la empresa
- * seleccionada).
  */
 export function useOverdueTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
-  const { $api } = useNuxtApp()
-  const companyId = 1
+  const api = createCompanyTasksApi(filters)
+  const scope = ['overdue']
 
-  const base = `/api/tasks/company/${companyId}/overdue`
-  const query = computed(() => toTaskListQuery(toValue(filters)))
+  const counts = api.countsQuery<OverdueCounts>(scope, '/overdue/counts/')
+  const today = api.listQuery([...scope, 'today'], '/overdue/today/')
+  const tomorrow = api.listQuery([...scope, 'tomorrow'], '/overdue/tomorrow/')
+  const week = api.listQuery([...scope, 'week'], '/overdue/week/')
+  const month = api.listQuery([...scope, 'month'], '/overdue/month/')
+  const noDate = api.listQuery([...scope, 'no_date'], '/overdue/no_date/')
 
-  const counts = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'overdue', 'counts', query.value]),
-    queryFn: () => $api<OverdueCounts>(`${base}/counts/`, { query: query.value }),
+  const sliceQueries = {
+    today,
+    tomorrow,
+    week,
+    month,
+    no_date: noDate,
+  } as const
+
+  const sections = computed<TaskBoardSection[]>(() => {
+    const totals = counts.data.value
+
+    return OVERDUE_SECTIONS.map((meta) => {
+      const slice = sliceQueries[meta.countKey]
+      return {
+        id: meta.id,
+        labelKey: meta.labelKey,
+        color: meta.color,
+        count: totals?.[meta.countKey],
+        tasks: extractResults(slice.data.value),
+        loading: slice.isPending.value,
+        error: slice.isError.value,
+      }
+    })
   })
 
-  const today = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'overdue', 'today', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/today/`, { query: query.value }),
-  })
-
-  const tomorrow = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'overdue', 'tomorrow', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/tomorrow/`, { query: query.value }),
-  })
-
-  const week = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'overdue', 'week', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/week/`, { query: query.value }),
-  })
-
-  const month = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'overdue', 'month', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/month/`, { query: query.value }),
-  })
-
-  const noDate = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'overdue', 'no_date', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/no_date/`, { query: query.value }),
-  })
-
-  return { counts, today, tomorrow, week, month, noDate }
+  return { counts, today, tomorrow, week, month, noDate, sections }
 }

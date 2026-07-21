@@ -1,14 +1,30 @@
-import type { KanbanColumn, ProjectTaskSection } from '~/features/tasks/types/task.types'
+import type { KanbanColumn, Task } from '~/features/tasks/types/task.types'
 
-/** Adapta secciones de lista (proyecto/grupo) al formato de columnas Kanban. */
-export function sectionsToKanbanColumns(sections: ProjectTaskSection[]): KanbanColumn[] {
+/** Fuente mínima para armar una columna Kanban. */
+export interface KanbanSectionSource {
+  id: string | number
+  name?: string
+  labelKey?: string
+  color?: string
+  dotColor?: string
+  count?: number
+  tasks: Task[]
+  loading: boolean
+  error: boolean
+  comingSoon?: boolean
+}
+
+/** Normaliza secciones de lista al contrato Kanban. */
+export function sectionsToKanbanColumns(sections: KanbanSectionSource[]): KanbanColumn[] {
   return sections.map(section => ({
     id: section.id,
     title: section.name,
-    color: section.dotColor,
+    labelKey: section.labelKey,
+    color: section.color ?? section.dotColor ?? '#6b7280',
     count: section.count,
     tasks: section.tasks,
     loading: section.loading,
     error: section.error,
+    comingSoon: section.comingSoon,
   }))
 }

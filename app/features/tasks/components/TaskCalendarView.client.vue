@@ -6,7 +6,7 @@ import esLocale from '@fullcalendar/core/locales/es'
 import type { CalendarApi, CalendarOptions, DatesSetArg, DayHeaderContentArg } from '@fullcalendar/core'
 import { useCalendarTasks } from '~/features/tasks/composables/useCalendarTasks'
 import type { TaskListFilters } from '~/features/tasks/types/task.types'
-import { extractResults } from '~/features/tasks/utils/task-api.util'
+import { extractResults } from '~/shared/utils/paginated.util'
 import { tasksToCalendarEvents } from '~/features/tasks/utils/task-calendar.util'
 
 const props = defineProps<{

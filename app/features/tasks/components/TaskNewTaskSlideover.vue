@@ -6,7 +6,7 @@ import type { PaginatedResponse } from '~/shared/types/api.types'
 import type { NewTaskFormType, ProjectDropdown, TaskEffort, UserDropdown } from '~/features/tasks/types/task.types'
 import { useCreateTask } from '~/features/tasks/composables/useCreateTask'
 import { useTaskDetail } from '~/features/tasks/composables/useTaskDetail'
-import { extractResults } from '~/features/tasks/utils/task-api.util'
+import { extractResults } from '~/shared/utils/paginated.util'
 import {
   buildCreateTaskPayload,
   defaultTaskReviewers,

@@ -8,7 +8,8 @@ import type {
   TaskListFilters,
   UserDropdown,
 } from '~/features/tasks/types/task.types'
-import { extractResults, toTaskListQuery } from '~/features/tasks/utils/task-api.util'
+import { extractResults } from '~/shared/utils/paginated.util'
+import { toTaskListQuery } from '~/features/tasks/utils/task-api.util'
 
 const GROUP_SECTION_COLORS = ['#6366f1', '#28ceab', '#f97316', '#8b5cf6', '#dc2626', '#6b7280']
 

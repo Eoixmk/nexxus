@@ -1,25 +1,15 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { KanbanColumn, TaskListFilters } from '~/features/tasks/types/task.types'
+import { sectionsToKanbanColumns } from '~/features/tasks/utils/kanban.util'
 
 /**
- * Server state de Por actualizar (vista Kanban).
- *
+ * Server state de Pending approval (vista Kanban).
  * Reutiliza los mismos endpoints close/* que la lista.
  */
 export function useToUpdateKanban(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
   const { sections } = useToUpdateTasks(filters)
 
-  const columns = computed<KanbanColumn[]>(() =>
-    sections.value.map(section => ({
-      id: section.id,
-      labelKey: section.labelKey,
-      color: section.color,
-      count: section.count,
-      tasks: section.tasks,
-      loading: section.loading,
-      error: section.error,
-    })),
-  )
+  const columns = computed<KanbanColumn[]>(() => sectionsToKanbanColumns(sections.value))
 
   return { columns }
 }

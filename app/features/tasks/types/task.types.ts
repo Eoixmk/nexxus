@@ -131,6 +131,19 @@ export interface ProjectTaskSection {
   error: boolean
 }
 
+/** Sección genérica de lista/kanban (due, close, status, etc.). */
+export interface TaskBoardSection {
+  id: string | number
+  name?: string
+  labelKey?: string
+  color: string
+  count?: number
+  tasks: Task[]
+  loading: boolean
+  error: boolean
+  comingSoon?: boolean
+}
+
 export interface UserDropdown {
   id: number
   username: string

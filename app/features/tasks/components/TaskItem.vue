@@ -16,36 +16,16 @@ const emit = defineEmits<{
   select: [taskId: number]
 }>()
 
-const { t, locale } = useI18n()
-
-const typeMeta = computed(() => taskTypeMeta(props.task.type))
-const priorityMeta = computed(() => taskPriorityMeta(props.task.priority))
-const barColor = computed(() => taskBarColor(props.task))
-const requiresAttention = computed(() => taskRequiresAttention(props.task))
-const assignees = computed(() => props.task.assigned_to ?? [])
-
-const dueDiff = computed(() => diffInDays(props.task.limit_date))
-const isOverdue = computed(() => dueDiff.value !== null && dueDiff.value < 0)
-
-const dueLabel = computed(() => {
-  const diff = dueDiff.value
-  if (diff === null) {
-    return ''
-  }
-  if (diff === 0) {
-    return t('tasks.due.today')
-  }
-  if (diff === 1) {
-    return t('tasks.due.tomorrow')
-  }
-  if (diff === -1) {
-    return t('tasks.due.yesterday')
-  }
-  if (diff > 1 && diff <= 30) {
-    return t('tasks.due.inDays', { n: diff })
-  }
-  return formatShortDate(props.task.limit_date, locale.value)
-})
+const { t } = useI18n()
+const {
+  typeMeta,
+  priorityMeta,
+  barColor,
+  requiresAttention,
+  assignees,
+  isOverdue,
+  dueLabel,
+} = useTaskCardPresentation(() => props.task)
 
 function onSelect() {
   emit('select', props.task.id)

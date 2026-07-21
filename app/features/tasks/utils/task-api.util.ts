@@ -1,15 +1,4 @@
-import type { PaginatedResponse } from '~/shared/types/api.types'
 import type { TaskListFilters } from '~/features/tasks/types/task.types'
-
-export function extractResults<T>(data: PaginatedResponse<T> | T[] | undefined | null): T[] {
-  if (!data) {
-    return []
-  }
-  if (Array.isArray(data)) {
-    return data
-  }
-  return data.results ?? []
-}
 
 /** Convierte filtros de UI en query params omitiendo valores vacíos. */
 export function toTaskListQuery(

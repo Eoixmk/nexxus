@@ -1,49 +1,21 @@
-import { useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
-import type { PaginatedResponse } from '~/shared/types/api.types'
-import type {
-  KanbanColumn,
-  KanbanCounts,
-  Task,
-  TaskListFilters,
-} from '~/features/tasks/types/task.types'
-import { extractResults, toTaskListQuery } from '~/features/tasks/utils/task-api.util'
+import type { KanbanColumn, KanbanCounts, TaskListFilters } from '~/features/tasks/types/task.types'
+import { createCompanyTasksApi } from '~/features/tasks/composables/createCompanyTasksApi'
+import { extractResults } from '~/shared/utils/paginated.util'
 
 /**
  * Server state del Kanban (groupBy = all) vía TanStack Query.
  *
- * Reutiliza los mismos query params que las listas (`toTaskListQuery`):
- * short_description, type, project, overdue, completed, multiple_close.
- *
- * NOTA: la empresa está fija en 1 por ahora (TODO: derivar de la empresa
- * seleccionada). in_review y complete aún no tienen endpoint de lista.
+ * NOTA: in_review y complete aún no tienen endpoint de lista.
  */
 export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
-  const { $api } = useNuxtApp()
-  const companyId = 1
+  const api = createCompanyTasksApi(filters)
+  const scope = ['kanban']
 
-  const base = `/api/tasks/company/${companyId}/kanban`
-  const query = computed(() => toTaskListQuery(toValue(filters)))
-
-  const counts = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'kanban', 'counts', query.value]),
-    queryFn: () => $api<KanbanCounts>(`${base}/counts/`, { query: query.value }),
-  })
-
-  const pending = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'kanban', 'pending', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/pending/`, { query: query.value }),
-  })
-
-  const wip = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'kanban', 'wip', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/wip/`, { query: query.value }),
-  })
-
-  const rejected = useQuery({
-    queryKey: computed(() => ['tasks', companyId, 'kanban', 'rejected', query.value]),
-    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/rejected/`, { query: query.value }),
-  })
+  const counts = api.countsQuery<KanbanCounts>(scope, '/kanban/counts/')
+  const pending = api.listQuery([...scope, 'pending'], '/kanban/pending/')
+  const wip = api.listQuery([...scope, 'wip'], '/kanban/wip/')
+  const rejected = api.listQuery([...scope, 'rejected'], '/kanban/rejected/')
 
   const columns = computed<KanbanColumn[]>(() => {
     const totals = counts.data.value
