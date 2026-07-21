@@ -58,7 +58,7 @@ function setBooleanFilter(key: 'overdue' | 'completed' | 'multiple_close', value
 </script>
 
 <template>
-  <div class="mb-2 rounded-lg border border-border bg-card px-3 py-2 flex items-end gap-3 flex-wrap">
+  <div class="mb-2 rounded-lg border border-border bg-card px-3 py-2 flex items-end gap-3 flex-wrap h-full box-border">
     <UFormField :label="t('tasks.filterType')" class="min-w-36">
       <USelect
         v-model="selectedType"

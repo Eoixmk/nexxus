@@ -34,6 +34,9 @@ export type TaskView = 'list' | 'kanban' | 'calendar'
 
 export type TaskGroupBy = 'all' | 'due' | 'topic' | 'group'
 
+/** Fase temporal del calendario: inicio, proceso o cierre. */
+export type TaskCalendarPhase = 'start' | 'process' | 'close'
+
 export type TaskSectionKey = 'urgent' | 'today' | 'upcoming'
 
 /** Filtros de query compartidos por listas y Kanban. */
@@ -77,6 +80,7 @@ export interface Task {
   priority: string
   project: number
   project_color?: string
+  group?: number | null
   multiple_close: boolean
   start_date: string | null
   limit_date: string | null

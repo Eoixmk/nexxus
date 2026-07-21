@@ -40,7 +40,7 @@ useSeoMeta({
 
 <template>
   <TaskWorkspaceShell :title="t('toolbar.moduleName')">
-    <template #default="{ view, groupBy, filters, selectedTaskId, openTask }">
+    <template #default="{ view, groupBy, filters, calendarPhase, selectedTaskId, openTask }">
       <TaskListView
         v-if="view === 'list' && groupBy === 'all'"
         :filters="filters"
@@ -96,6 +96,7 @@ useSeoMeta({
       <TaskCalendarView
         v-else-if="view === 'calendar'"
         :filters="filters"
+        :phase="calendarPhase"
       />
 
       <div

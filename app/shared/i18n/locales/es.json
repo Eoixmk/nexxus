@@ -103,6 +103,11 @@
       "kanban": "Kanban",
       "calendar": "Calendario"
     },
+    "calendarPhases": {
+      "start": "Inicio",
+      "process": "Proceso",
+      "close": "Cierre"
+    },
     "kanban": {
       "columns": {
         "pending": "Pendiente",

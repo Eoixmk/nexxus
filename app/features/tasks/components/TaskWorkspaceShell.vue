@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TaskCalendarPhaseFilter from '~/features/tasks/components/TaskCalendarPhaseFilter.vue'
 import TaskGroupByFilter from '~/features/tasks/components/TaskGroupByFilter.vue'
 import TaskListFilters from '~/features/tasks/components/TaskListFilters.vue'
 import TaskNewTaskSlideover from '~/features/tasks/components/TaskNewTaskSlideover.vue'
@@ -19,6 +20,7 @@ const {
   view,
   search,
   groupBy,
+  calendarPhase,
   filtersOpen,
   newTaskOpen,
   selectedTaskId,
@@ -70,7 +72,26 @@ const {
 
       <div v-if="filtersOpen" class="space-y-2">
         <TaskGroupByFilter v-model="groupBy" />
-        <TaskListFilters v-model="listFilters" />
+
+        <div class="mb-2 flex items-stretch gap-2">
+          <div class="min-w-0 flex-1">
+            <TaskListFilters
+              v-model="listFilters"
+              class="mb-0! h-full"
+            />
+          </div>
+          <Transition name="calendar-phase">
+            <div
+              v-if="view === 'calendar'"
+              class="calendar-phase-panel h-auto self-stretch"
+            >
+              <TaskCalendarPhaseFilter
+                v-model="calendarPhase"
+                class="h-full"
+              />
+            </div>
+          </Transition>
+        </div>
 
         <div class="rounded-lg border border-border bg-card px-3 py-2 flex items-center gap-2 flex-wrap">
           <UInput
@@ -94,6 +115,7 @@ const {
         :view="view"
         :group-by="groupBy"
         :filters="listFilters"
+        :calendar-phase="calendarPhase"
         :selected-task-id="selectedTaskId"
         :open-task="openTask"
       />
@@ -105,3 +127,26 @@ const {
     />
   </div>
 </template>
+
+<style scoped>
+.calendar-phase-enter-active,
+.calendar-phase-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    max-width 0.22s ease;
+  overflow: hidden;
+  max-width: 18rem;
+}
+
+.calendar-phase-enter-from,
+.calendar-phase-leave-to {
+  opacity: 0;
+  transform: translateX(0.75rem);
+  max-width: 0;
+}
+
+.calendar-phase-panel {
+  display: flex;
+}
+</style>

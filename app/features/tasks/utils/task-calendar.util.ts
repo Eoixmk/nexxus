@@ -1,5 +1,5 @@
 import type { EventInput } from '@fullcalendar/core'
-import type { Task } from '~/features/tasks/types/task.types'
+import type { Task, TaskCalendarPhase } from '~/features/tasks/types/task.types'
 import { taskBarColor } from '~/features/tasks/utils/task-format.util'
 
 /** Extrae YYYY-MM-DD de un ISO o fecha parcial. */
@@ -47,19 +47,50 @@ function darkenHex(hex: string, amount = 0.45): string {
   return `#${channels.map(channel => channel.toString(16).padStart(2, '0')).join('')}`
 }
 
-/**
- * Ubica la tarea en el calendario: rango start→limit si hay ambos,
- * si no limit/start, y como fallback created_at (coincide con el filtro del API).
- */
-export function taskToCalendarEvent(task: Task): EventInput {
-  const startDate = toDateOnly(task.start_date)
-  const limitDate = toDateOnly(task.limit_date)
-  const createdDate = toDateOnly(task.created_at)
+function eventColors(task: Task) {
   const color = taskBarColor(task)
+  return {
+    backgroundColor: hexToRgba(color, 0.22),
+    borderColor: color,
+    textColor: darkenHex(color),
+  }
+}
 
-  const start = startDate ?? limitDate ?? createdDate ?? new Date().toISOString().slice(0, 10)
-  const endExclusive = limitDate && limitDate !== start
-    ? nextDay(limitDate)
+/**
+ * Vista Inicio: la tarea aparece solo el día de `start_date`
+ * (sin importar cuántos días dure hasta limit_date).
+ */
+export function taskToStartCalendarEvent(task: Task): EventInput | null {
+  const start = toDateOnly(task.start_date)
+  if (!start) {
+    return null
+  }
+
+  return {
+    id: String(task.id),
+    title: task.short_description,
+    start,
+    allDay: true,
+    ...eventColors(task),
+  }
+}
+
+/**
+ * Vista Proceso: barra desde `start_date` hasta `limit_date` (duración).
+ * Si falta limit_date, se muestra solo el día de inicio.
+ *
+ * Importante: no limitar filas visibles en esta fase; si FullCalendar
+ * oculta el inicio de una barra multi-día, parece que empezó otro día.
+ */
+export function taskToProcessCalendarEvent(task: Task): EventInput | null {
+  const start = toDateOnly(task.start_date)
+  if (!start) {
+    return null
+  }
+
+  const limit = toDateOnly(task.limit_date)
+  const endExclusive = limit && limit >= start
+    ? nextDay(limit)
     : undefined
 
   return {
@@ -68,12 +99,50 @@ export function taskToCalendarEvent(task: Task): EventInput {
     start,
     end: endExclusive,
     allDay: true,
-    backgroundColor: hexToRgba(color, 0.22),
-    borderColor: color,
-    textColor: darkenHex(color),
+    ...eventColors(task),
   }
 }
 
-export function tasksToCalendarEvents(tasks: Task[]): EventInput[] {
-  return tasks.map(taskToCalendarEvent)
+/**
+ * Vista Cierre: la tarea aparece solo el día de `limit_date`
+ * (fecha de cierre), sin importar el rango completo.
+ */
+export function taskToCloseCalendarEvent(task: Task): EventInput | null {
+  const closeDate = toDateOnly(task.limit_date)
+  if (!closeDate) {
+    return null
+  }
+
+  return {
+    id: String(task.id),
+    title: task.short_description,
+    start: closeDate,
+    allDay: true,
+    ...eventColors(task),
+  }
+}
+
+export function tasksToCalendarEvents(
+  tasks: Task[],
+  phase: TaskCalendarPhase = 'start',
+): EventInput[] {
+  const mapper = phase === 'process'
+    ? taskToProcessCalendarEvent
+    : phase === 'close'
+      ? taskToCloseCalendarEvent
+      : taskToStartCalendarEvent
+
+  const events = tasks
+    .map(mapper)
+    .filter((event): event is EventInput => event != null)
+
+  // Orden estable por fecha de inicio.
+  return events.sort((a, b) => {
+    const startA = String(a.start ?? '')
+    const startB = String(b.start ?? '')
+    if (startA !== startB) {
+      return startA.localeCompare(startB)
+    }
+    return String(a.title ?? '').localeCompare(String(b.title ?? ''))
+  })
 }

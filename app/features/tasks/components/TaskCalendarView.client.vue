@@ -3,15 +3,30 @@ import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import esLocale from '@fullcalendar/core/locales/es'
-import type { CalendarApi, CalendarOptions, DatesSetArg, DayHeaderContentArg } from '@fullcalendar/core'
+import type {
+  CalendarApi,
+  CalendarOptions,
+  DatesSetArg,
+  DayCellMountArg,
+  DayHeaderContentArg,
+  EventInput,
+  EventMountArg,
+  MoreLinkArg,
+} from '@fullcalendar/core'
 import { useCalendarTasks } from '~/features/tasks/composables/useCalendarTasks'
-import type { TaskListFilters } from '~/features/tasks/types/task.types'
+import type { TaskCalendarPhase, TaskListFilters } from '~/features/tasks/types/task.types'
 import { extractResults } from '~/shared/utils/paginated.util'
 import { tasksToCalendarEvents } from '~/features/tasks/utils/task-calendar.util'
 
+const COLLAPSED_EVENT_ROWS = 3
+const PHASE_TRANSITION_MS = 180
+
 const props = defineProps<{
   filters: TaskListFilters
+  phase?: TaskCalendarPhase
 }>()
+
+const phase = computed(() => props.phase ?? 'start')
 
 const now = new Date()
 const visibleMonth = ref({
@@ -19,14 +34,47 @@ const visibleMonth = ref({
   month: now.getMonth() + 1,
 })
 
-const { tasks } = useCalendarTasks(visibleMonth, () => props.filters)
+const { tasks } = useCalendarTasks(visibleMonth, () => props.filters, phase)
 
 const calendarRef = ref<{ getApi: () => CalendarApi } | null>(null)
+const calendarRoot = ref<HTMLElement | null>(null)
+/** Semanas expandidas (clave = YYYY-MM-DD del primer día visible de la fila). */
+const expandedWeeks = ref(new Set<string>())
+const isEventsExiting = ref(false)
+let phaseTransitionToken = 0
 
 const dayLetters = ['D', 'L', 'M', 'X', 'J', 'V', 'S'] as const
 
 function dayHeaderContent(arg: DayHeaderContentArg) {
   return dayLetters[arg.date.getDay()] ?? ''
+}
+
+function wait(ms: number) {
+  return new Promise<void>(resolve => {
+    window.setTimeout(resolve, ms)
+  })
+}
+
+function mountEventEnter(arg: EventMountArg) {
+  arg.el.classList.add('fc-event-enter')
+}
+
+function toDateKey(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function weekRowKey(date: Date): string {
+  const api = calendarRef.value?.getApi()
+  const weekStartsOn = Number(api?.getOption('firstDay') ?? 1)
+  const day = date.getDay()
+  const diff = (day - weekStartsOn + 7) % 7
+  const start = new Date(date)
+  start.setHours(0, 0, 0, 0)
+  start.setDate(start.getDate() - diff)
+  return toDateKey(start)
 }
 
 function setVisibleMonth(date: Date) {
@@ -43,6 +91,8 @@ function setVisibleMonth(date: Date) {
   }
 
   visibleMonth.value = next
+  expandedWeeks.value = new Set()
+  applyDayMaxEventRows()
 }
 
 function syncFromDatesSet(arg: DatesSetArg) {
@@ -68,6 +118,95 @@ function navigateMonth(direction: 'prev' | 'next' | 'today') {
   setVisibleMonth(api.getDate())
 }
 
+function applyDayMaxEventRows() {
+  // En Proceso las barras multi-día no se pueden limitar por fila:
+  // FullCalendar oculta el tramo inicial saturado y reaparece después,
+  // dando la impresión de que la tarea empezó otro día.
+  const rows: false | number = phase.value === 'process'
+    ? false
+    : expandedWeeks.value.size > 0
+      ? false
+      : COLLAPSED_EVENT_ROWS
+
+  calendarOptions.dayMaxEventRows = rows
+  calendarRef.value?.getApi()?.setOption('dayMaxEventRows', rows)
+}
+
+function toggleWeek(date: Date) {
+  const key = weekRowKey(date)
+  const next = new Set(expandedWeeks.value)
+  if (next.has(key)) {
+    next.delete(key)
+  }
+  else {
+    next.add(key)
+  }
+  expandedWeeks.value = next
+  applyDayMaxEventRows()
+  syncWeekToggleButtons()
+}
+
+function handleMoreLinkClick(arg: MoreLinkArg) {
+  toggleWeek(arg.date)
+}
+
+function syncWeekToggleButtons() {
+  if (!calendarRoot.value) {
+    return
+  }
+
+  calendarRoot.value.querySelectorAll<HTMLButtonElement>('[data-week-toggle]').forEach((button) => {
+    const key = button.dataset.weekToggle
+    if (!key) {
+      return
+    }
+    const expanded = expandedWeeks.value.has(key)
+    button.dataset.expanded = expanded ? 'true' : 'false'
+    button.setAttribute('aria-expanded', expanded ? 'true' : 'false')
+    button.setAttribute('aria-label', expanded ? 'Colapsar semana' : 'Expandir semana')
+    button.title = expanded ? 'Colapsar semana' : 'Expandir semana'
+
+    const row = button.closest('tr')
+    if (!row) {
+      return
+    }
+    if (expanded) {
+      row.setAttribute('data-week-expanded', 'true')
+    }
+    else {
+      row.removeAttribute('data-week-expanded')
+    }
+  })
+}
+
+function mountWeekToggle(arg: DayCellMountArg) {
+  const key = weekRowKey(arg.date)
+  const weekStartKey = key
+  const cellKey = toDateKey(arg.date)
+  // Solo el primer día de la semana (fila) lleva el control.
+  if (cellKey !== weekStartKey) {
+    return
+  }
+
+  const top = arg.el.querySelector('.fc-daygrid-day-top')
+  if (!top || top.querySelector('[data-week-toggle]')) {
+    return
+  }
+
+  const button = document.createElement('button')
+  button.type = 'button'
+  button.className = 'fc-week-toggle'
+  button.dataset.weekToggle = key
+  button.innerHTML = '<span class="fc-week-toggle-icon" aria-hidden="true"></span>'
+  button.addEventListener('click', (event) => {
+    event.preventDefault()
+    event.stopPropagation()
+    toggleWeek(arg.date)
+  })
+  top.appendChild(button)
+  syncWeekToggleButtons()
+}
+
 const calendarOptions = reactive<CalendarOptions>({
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
@@ -77,7 +216,12 @@ const calendarOptions = reactive<CalendarOptions>({
   selectable: false,
   height: 'auto',
   fixedWeekCount: false,
-  dayMaxEvents: true,
+  dayMaxEventRows: COLLAPSED_EVENT_ROWS,
+  moreLinkText: 'más...',
+  moreLinkClick: handleMoreLinkClick,
+  // Carriles estables: primero por inicio, luego las más largas arriba.
+  eventOrder: 'start,-duration,title',
+  eventOrderStrict: true,
   customButtons: {
     prevMonth: {
       icon: 'chevron-left',
@@ -103,21 +247,67 @@ const calendarOptions = reactive<CalendarOptions>({
   },
   dayHeaderContent,
   dayHeaderFormat: { weekday: 'narrow' },
+  dayCellDidMount: mountWeekToggle,
+  eventDidMount: mountEventEnter,
   events: [],
 })
+
+async function applyCalendarEvents(events: EventInput[], animate: boolean) {
+  const token = ++phaseTransitionToken
+  const currentEvents = Array.isArray(calendarOptions.events)
+    ? (calendarOptions.events as EventInput[])
+    : []
+
+  if (animate && currentEvents.length > 0) {
+    isEventsExiting.value = true
+    await wait(PHASE_TRANSITION_MS)
+    if (token !== phaseTransitionToken) {
+      return
+    }
+  }
+
+  calendarOptions.events = events
+  isEventsExiting.value = false
+  await nextTick()
+  if (token !== phaseTransitionToken) {
+    return
+  }
+  syncWeekToggleButtons()
+}
 
 watch(
   () => tasks.data.value,
   (data) => {
-    calendarOptions.events = tasksToCalendarEvents(extractResults(data))
+    applyDayMaxEventRows()
+    void applyCalendarEvents(
+      tasksToCalendarEvents(extractResults(data), phase.value),
+      false,
+    )
   },
   { immediate: true },
 )
+
+watch(phase, () => {
+  expandedWeeks.value = new Set()
+  applyDayMaxEventRows()
+  void applyCalendarEvents(
+    tasksToCalendarEvents(extractResults(tasks.data.value), phase.value),
+    true,
+  )
+})
 </script>
 
 <template>
   <div class="px-4 py-4">
-    <div class="relative task-calendar overflow-hidden rounded-xl border border-border bg-background">
+    <div
+      ref="calendarRoot"
+      class="relative task-calendar overflow-hidden rounded-xl border border-border bg-background"
+      :class="{
+        'is-week-expanded': expandedWeeks.size > 0 && phase !== 'process',
+        'is-events-exiting': isEventsExiting,
+        'is-process-phase': phase === 'process',
+      }"
+    >
       <div
         v-if="tasks.isPending.value"
         class="absolute inset-0 z-10 flex items-center justify-center bg-background/60"
@@ -255,17 +445,19 @@ watch(
 
 .task-calendar :deep(.fc .fc-daygrid-day) {
   background: var(--background);
-  min-height: 7.5rem;
+  min-height: 6.5rem;
 }
 
 .task-calendar :deep(.fc .fc-daygrid-day-frame) {
-  min-height: 7.5rem;
+  min-height: 6.5rem;
   padding: 0.35rem 0.35rem 0.5rem;
 }
 
 .task-calendar :deep(.fc .fc-daygrid-day-top) {
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .task-calendar :deep(.fc .fc-daygrid-day-number) {
@@ -273,6 +465,38 @@ watch(
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--muted-foreground);
+}
+
+.task-calendar :deep(.fc .fc-week-toggle) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.15rem;
+  border-radius: 0.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted-foreground);
+  cursor: pointer;
+}
+
+.task-calendar :deep(.fc .fc-week-toggle:hover) {
+  background: var(--muted);
+  color: var(--foreground);
+}
+
+.task-calendar :deep(.fc .fc-week-toggle-icon) {
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  transition: transform 0.15s ease;
+}
+
+.task-calendar :deep(.fc .fc-week-toggle[data-expanded='true'] .fc-week-toggle-icon) {
+  transform: rotate(180deg);
 }
 
 .task-calendar :deep(.fc .fc-day-other) {
@@ -302,6 +526,29 @@ watch(
   border-radius: 0.375rem;
   background: var(--fc-event-bg-color);
   box-shadow: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.task-calendar.is-events-exiting :deep(.fc .fc-daygrid-event),
+.task-calendar.is-events-exiting :deep(.fc .fc-more-link) {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.task-calendar :deep(.fc .fc-daygrid-event.fc-event-enter) {
+  animation: fc-event-enter 0.22s ease both;
+}
+
+@keyframes fc-event-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .task-calendar :deep(.fc .fc-daygrid-event .fc-event-main) {
@@ -325,6 +572,17 @@ watch(
 .task-calendar :deep(.fc .fc-more-link) {
   color: var(--muted-foreground);
   font-size: 0.6875rem;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 0.15rem 0.35rem;
+}
+
+/* En Proceso no recortamos con overflow: corta barras multi-día a mitad. */
+.task-calendar.is-week-expanded:not(.is-process-phase) :deep(tr:not([data-week-expanded]) .fc-daygrid-day-events) {
+  max-height: 4.8rem;
+  overflow: hidden;
+}
+
+.task-calendar.is-week-expanded:not(.is-process-phase) :deep(tr:not([data-week-expanded]) .fc-daygrid-day-bottom) {
+  display: none;
 }
 </style>

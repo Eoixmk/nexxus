@@ -1,4 +1,5 @@
 import type { Task, TaskAssignee } from '~/features/tasks/types/task.types'
+import { resolveThemeColor } from '~/features/projects/utils/project-color.util'
 
 const ASSIGNEE_AVATAR_COLORS = [
   '#f59e0b',
@@ -54,6 +55,7 @@ const PRIORITY_BAR_COLOR: Record<string, string> = {
   critical: '#f97316',
   high: '#f59e0b',
   normal: '#28ceab',
+  low: '#64748b',
 }
 
 export function taskTypeMeta(type: string): TaskTypeMeta {
@@ -66,8 +68,8 @@ export function taskPriorityMeta(priority: string): TaskPriorityMeta | null {
 }
 
 export function taskBarColor(task: Task): string {
-  if (task.project_color && task.project_color.trim().startsWith('#')) {
-    return task.project_color
+  if (task.project_color?.trim()) {
+    return resolveThemeColor(task.project_color)
   }
   return PRIORITY_BAR_COLOR[task.priority] ?? '#28ceab'
 }

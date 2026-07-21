@@ -1,4 +1,4 @@
-import type { TaskGroupBy, TaskListFilters, TaskView } from '~/features/tasks/types/task.types'
+import type { TaskCalendarPhase, TaskGroupBy, TaskListFilters, TaskView } from '~/features/tasks/types/task.types'
 
 /** Estado compartido del workspace de tareas (filtros, vista, slideover). */
 export function useTaskWorkspaceState() {
@@ -7,6 +7,7 @@ export function useTaskWorkspaceState() {
   const view = ref<TaskView>('list')
   const search = ref('')
   const groupBy = ref<TaskGroupBy>('all')
+  const calendarPhase = ref<TaskCalendarPhase>('start')
   const filtersOpen = ref(false)
   const newTaskOpen = ref(false)
   const selectedTaskId = ref<number | null>(null)
@@ -37,6 +38,7 @@ export function useTaskWorkspaceState() {
     view,
     search,
     groupBy,
+    calendarPhase,
     filtersOpen,
     newTaskOpen,
     selectedTaskId,

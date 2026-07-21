@@ -1,6 +1,7 @@
 import { useQueries, useQuery } from '@tanstack/vue-query'
 import type { MaybeRefOrGetter } from 'vue'
 import type { PaginatedResponse } from '~/shared/types/api.types'
+import { resolveThemeColor } from '~/features/projects/utils/project-color.util'
 import { extractResults } from '~/shared/utils/paginated.util'
 import { toTaskListQuery } from '~/features/tasks/utils/task-api.util'
 import type {
@@ -69,8 +70,8 @@ export function useProjectTasks(filters: MaybeRefOrGetter<TaskListFilters> = {})
         id: project.id,
         name: project.name,
         count: countsMap.get(project.id),
-        dotColor: tasks[0]?.project_color?.trim()?.startsWith('#')
-          ? tasks[0].project_color.trim()
+        dotColor: tasks[0]?.project_color?.trim()
+          ? resolveThemeColor(tasks[0].project_color)
           : PROJECT_SECTION_COLORS[index % PROJECT_SECTION_COLORS.length],
         tasks,
         loading: queryResult?.isPending ?? false,
