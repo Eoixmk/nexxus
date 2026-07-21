@@ -143,13 +143,15 @@ export interface AssignedTaskCount {
 }
 
 /** Columnas del tablero Kanban (status o agrupaciones dinámicas). */
-export type KanbanStatusColumnId = 'pending' | 'wip' | 'in_review' | 'complete'
+export type KanbanStatusColumnId = 'pending' | 'wip' | 'in_review' | 'rejected' | 'complete'
 
 export interface KanbanCounts {
   pending: number
   wip: number
   in_review: number
+  rejected: number
   complete: number
+  total?: number
 }
 
 export interface KanbanColumn {

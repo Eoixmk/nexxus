@@ -21,6 +21,7 @@ const { columns } = useToUpdateKanban(() => props.filters)
 
 <template>
   <TaskKanbanBoard
+    class="h-full"
     :columns="columns"
     :selected-task-id="selectedTaskId"
     @select="emit('select', $event)"

@@ -59,24 +59,23 @@ function onDrop(event: DragEvent) {
 </script>
 
 <template>
-  <section
-    class="flex flex-col w-[280px] shrink-0"
-  >
-    <header class="flex items-center justify-between mb-3 px-1">
+  <section class="flex h-full min-h-0 w-[280px] shrink-0 flex-col">
+    <header class="flex items-center gap-2 mb-3 px-1 shrink-0">
+      <UBadge
+        v-if="column.count !== undefined"
+        :label="column.count.toString()"
+        size="md"
+        class="text-white ring-0 shrink-0"
+        :style="{ backgroundColor: column.color }"
+      />
+      <TaskSectionBadgeFallback v-else />
       <h3 class="text-sm font-semibold text-foreground flex-1 min-w-0 truncate">
         {{ column.title ?? (column.labelKey ? t(column.labelKey) : '') }}
       </h3>
-      <span
-        v-if="column.count !== undefined"
-        class="text-xs font-mono text-muted-foreground ml-2"
-      >
-        {{ column.count }}
-      </span>
-      <TaskSectionBadgeFallback v-else class="ml-2" />
     </header>
 
     <div
-      class="flex-1 rounded-xl bg-kanban-column p-2 space-y-2 min-h-[200px] transition-colors"
+      class="flex-1 min-h-0 overflow-y-auto rounded-xl bg-kanban-column p-2 space-y-2 transition-colors"
       :class="isDropTarget
         ? 'ring-2 ring-aeto-teal/40'
         : ''"

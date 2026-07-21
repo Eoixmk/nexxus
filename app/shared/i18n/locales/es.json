@@ -108,6 +108,7 @@
         "pending": "Pendiente",
         "wip": "En progreso",
         "inReview": "En revisión",
+        "rejected": "Rechazada",
         "complete": "Completado"
       },
       "dropHere": "Suelta aquí",

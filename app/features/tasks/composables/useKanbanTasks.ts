@@ -40,6 +40,11 @@ export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) 
     queryFn: () => $api<PaginatedResponse<Task>>(`${base}/wip/`, { query: query.value }),
   })
 
+  const rejected = useQuery({
+    queryKey: computed(() => ['tasks', companyId, 'kanban', 'rejected', query.value]),
+    queryFn: () => $api<PaginatedResponse<Task>>(`${base}/rejected/`, { query: query.value }),
+  })
+
   const columns = computed<KanbanColumn[]>(() => {
     const totals = counts.data.value
 
@@ -73,6 +78,15 @@ export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) 
         comingSoon: true,
       },
       {
+        id: 'rejected',
+        labelKey: 'tasks.kanban.columns.rejected',
+        color: '#dc2626',
+        count: totals?.rejected,
+        tasks: extractResults(rejected.data.value),
+        loading: rejected.isPending.value,
+        error: rejected.isError.value,
+      },
+      {
         id: 'complete',
         labelKey: 'tasks.kanban.columns.complete',
         color: '#28ceab',
@@ -85,5 +99,5 @@ export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) 
     ]
   })
 
-  return { counts, pending, wip, columns }
+  return { counts, pending, wip, rejected, columns }
 }

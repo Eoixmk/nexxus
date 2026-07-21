@@ -24,6 +24,7 @@ const columns = computed(() => sectionsToKanbanColumns(sections.value))
 
 <template>
   <TaskKanbanBoard
+    class="h-full"
     :columns="columns"
     :selected-task-id="selectedTaskId"
     :loading="projects.isPending.value"

@@ -47,9 +47,13 @@ function onDropTask(payload: KanbanTaskMove) {
 </script>
 
 <template>
-  <div class="overflow-x-auto pb-2">
-    <div v-if="loading && !localColumns.length" class="flex items-start gap-4">
-      <USkeleton v-for="n in 3" :key="n" class="h-64 w-72 shrink-0 rounded-xl" />
+  <!--
+    Tablero fijo a la altura del viewport disponible:
+    scroll X en el board, scroll Y independiente por columna.
+  -->
+  <div class="h-full min-h-0 overflow-x-auto overflow-y-hidden">
+    <div v-if="loading && !localColumns.length" class="flex h-full items-stretch gap-4">
+      <USkeleton v-for="n in 3" :key="n" class="h-full w-72 shrink-0 rounded-xl" />
     </div>
 
     <p v-else-if="error" class="px-2 py-6 text-sm text-error">
@@ -60,7 +64,7 @@ function onDropTask(payload: KanbanTaskMove) {
       {{ t('tasks.empty') }}
     </p>
 
-    <div v-else class="flex items-start gap-4 min-w-max">
+    <div v-else class="flex h-full min-h-0 items-stretch gap-4 min-w-max">
       <TaskKanbanColumn
         v-for="column in localColumns"
         :key="column.id"

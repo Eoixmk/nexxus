@@ -70,6 +70,7 @@ const columns = computed<KanbanColumn[]>(() => [
 
 <template>
   <TaskKanbanBoard
+    class="h-full"
     :columns="columns"
     :selected-task-id="selectedTaskId"
     @select="emit('select', $event)"
