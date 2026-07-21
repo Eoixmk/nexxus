@@ -7,13 +7,13 @@
  * y se exponen como utilidades Tailwind vía `@theme inline`.
  */
 :root {
-  --background: #ffffff;
+  --background: #fafbfc;
   --foreground: #1c1c1c;
   --card: #ffffff;
   --border: #e6e8eb;
   --muted: #f4f5f7;
   --muted-foreground: #6b7280;
-  --sidebar: #fafbfc;
+  --sidebar: #ffffff;
   --sidebar-border: #e6e8eb;
   --sidebar-foreground: #3f434b;
   --kanban-column: #ededed;

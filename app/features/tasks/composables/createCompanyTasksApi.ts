@@ -28,11 +28,18 @@ export function createCompanyTasksApi(filters: MaybeRefOrGetter<TaskListFilters>
     })
   }
 
-  function listQuery(scope: string[], path: string) {
+  function listQuery(
+    scope: string[],
+    path: string,
+    options: { enabled?: MaybeRefOrGetter<boolean> } = {},
+  ) {
     return useQuery({
       queryKey: computed(() => ['tasks', companyId, ...scope, query.value]),
       queryFn: () =>
         $api<PaginatedResponse<Task>>(companyPath(path), { query: query.value }),
+      enabled: computed(() =>
+        options.enabled === undefined ? true : toValue(options.enabled),
+      ),
     })
   }
 
