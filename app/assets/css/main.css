@@ -7,7 +7,7 @@
  * y se exponen como utilidades Tailwind vía `@theme inline`.
  */
 :root {
-  --background: #fafbfc;
+  --background: #F5F5F5;
   --foreground: #1c1c1c;
   --card: #ffffff;
   --border: #e6e8eb;

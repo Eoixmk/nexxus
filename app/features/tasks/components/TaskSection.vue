@@ -33,7 +33,7 @@ const { t } = useI18n()
     <template #default="{ open }">
       <button
         type="button"
-        class="mb-2 w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-muted/50 transition-colors"
+        class="mb-2 w-full flex items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-[#EDEDED] transition-colors dark:hover:bg-muted/50"
       >
         <UIcon
           name="i-lucide-chevron-down"
