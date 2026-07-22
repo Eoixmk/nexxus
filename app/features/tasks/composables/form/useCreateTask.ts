@@ -7,6 +7,8 @@ import type { CreateTaskPayload } from '~/features/tasks/types/task.types'
 export function useCreateTask() {
   const { $api } = useNuxtApp()
   const queryClient = useQueryClient()
+  const toast = useToast()
+  const { t } = useI18n()
 
   return useMutation({
     mutationFn: (payload: CreateTaskPayload) =>
@@ -14,8 +16,20 @@ export function useCreateTask() {
         method: 'POST',
         body: payload,
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      toast.add({
+        title: t('tasks.form.createSuccessTitle'),
+        description: t('tasks.form.createSuccessDescription'),
+        color: 'success',
+      })
+    },
+    onError: (error) => {
+      toast.add({
+        title: t('tasks.form.createError'),
+        description: parseFetchError(error),
+        color: 'error',
+      })
     },
   })
 }

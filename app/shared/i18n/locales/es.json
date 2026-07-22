@@ -185,6 +185,8 @@
       "cancel": "Cancelar",
       "close": "Cerrar",
       "create": "Crear tarea",
+      "createSuccessTitle": "Tarea creada",
+      "createSuccessDescription": "La tarea se creó correctamente.",
       "createError": "No se pudo crear la tarea",
       "validation": {
         "nameRequired": "El nombre es obligatorio",

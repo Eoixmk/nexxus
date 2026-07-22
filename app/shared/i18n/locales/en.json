@@ -185,6 +185,8 @@
       "cancel": "Cancel",
       "close": "Close",
       "create": "Create task",
+      "createSuccessTitle": "Task created",
+      "createSuccessDescription": "The task was created successfully.",
       "createError": "Could not create the task",
       "validation": {
         "nameRequired": "Name is required",
