@@ -11,6 +11,7 @@ export interface NewTaskFormInput {
   name: string
   description: string
   project: number | undefined
+  group: number | undefined
   assignedTo: number[]
   taskReviewer: number[]
   dueDate: string
@@ -48,6 +49,7 @@ export function taskDetailToFormInput(detail: TaskDetail): NewTaskFormInput {
     name: detail.short_description ?? '',
     description: detail.long_description ?? '',
     project: detail.project ?? undefined,
+    group: detail.group ?? undefined,
     assignedTo: [...(detail.assigned_to ?? [])],
     taskReviewer: detail.close_approvals?.map(approval => approval.profile) ?? [],
     dueDate: isoToDateInput(detail.limit_date),
@@ -95,6 +97,9 @@ export function buildCreateTaskPayload(
   if (form.project == null) {
     throw new Error('project_required')
   }
+  if (form.group == null) {
+    throw new Error('group_required')
+  }
   if (!form.assignedTo.length) {
     throw new Error('assigned_to_required')
   }
@@ -110,6 +115,7 @@ export function buildCreateTaskPayload(
     start_date: new Date().toISOString(),
     limit_date: dateInputToLimitISO(form.dueDate),
     project: form.project,
+    group: form.group,
     assigned_to: form.assignedTo,
   }
 

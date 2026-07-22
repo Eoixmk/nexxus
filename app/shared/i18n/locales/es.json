@@ -119,6 +119,21 @@
       "dropHere": "Suelta aquí",
       "dropHint": "Puedes soltar tareas aquí"
     },
+    "processStart": {
+      "submit": "En Proceso",
+      "modalTitle": "Iniciar proceso",
+      "modalDescription": "Puedes agregar un comentario e imágenes de forma opcional.",
+      "comment": "Comentario",
+      "commentPlaceholder": "Comentario de tipo ejemplo",
+      "images": "Imágenes",
+      "optional": "Opcional",
+      "dropLabel": "Suelta tu imagen aquí",
+      "dropDescription": "SVG, PNG o JPG",
+      "confirm": "Confirmar",
+      "successTitle": "Proceso iniciado",
+      "successDescription": "La tarea pasó a En progreso.",
+      "errorTitle": "No se pudo iniciar el proceso"
+    },
     "due": {
       "today": "Hoy",
       "tomorrow": "Mañana",
@@ -150,6 +165,8 @@
       "descriptionPlaceholder": "Contexto adicional opcional...",
       "topic": "Tema",
       "topicPlaceholder": "Selecciona un tema...",
+      "group": "Grupo",
+      "groupPlaceholder": "Selecciona un grupo...",
       "assignedTo": "Asignado a",
       "assignedToPlaceholder": "Selecciona uno o más usuarios...",
       "dueDate": "Fecha Límite",
@@ -172,6 +189,7 @@
       "validation": {
         "nameRequired": "El nombre es obligatorio",
         "projectRequired": "Selecciona un tema",
+        "groupRequired": "Selecciona un grupo",
         "assignedToRequired": "Selecciona al menos un usuario asignado",
         "dueDateRequired": "Selecciona una fecha límite",
         "taskReviewerRequired": "Selecciona al menos un colaborador que deba confirmar"

@@ -26,6 +26,7 @@ export interface CreateTaskPayload {
   start_date: string
   limit_date: string
   project: number
+  group: number
   assigned_to: number[]
   task_reviewer?: number[]
 }
@@ -119,6 +120,11 @@ export interface ProjectDropdown {
   name: string
 }
 
+export interface GroupDropdown {
+  id: number
+  name: string
+}
+
 export interface ProjectTaskCount {
   id: number
   name: string
@@ -184,6 +190,13 @@ export interface KanbanColumn {
   error: boolean
   /** Columnas cuyo endpoint de lista aún no está listo. */
   comingSoon?: boolean
+}
+
+/** Payload de POST /api/tasks/process/start/ */
+export interface StartTaskProcessPayload {
+  task: number
+  comment?: string
+  images?: File[]
 }
 
 /** Payload local de mover una tarea entre columnas (API pendiente). */
