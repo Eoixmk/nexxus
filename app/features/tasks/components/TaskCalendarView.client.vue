@@ -298,10 +298,10 @@ watch(phase, () => {
 </script>
 
 <template>
-  <div class="px-4 py-4">
+  <div>
     <div
       ref="calendarRoot"
-      class="relative task-calendar overflow-hidden rounded-xl border border-border bg-background"
+      class="relative task-calendar overflow-hidden rounded-xl bg-card"
       :class="{
         'is-week-expanded': expandedWeeks.size > 0 && phase !== 'process',
         'is-events-exiting': isEventsExiting,
@@ -310,7 +310,7 @@ watch(phase, () => {
     >
       <div
         v-if="tasks.isPending.value"
-        class="absolute inset-0 z-10 flex items-center justify-center bg-background/60"
+        class="absolute inset-0 z-10 flex items-center justify-center bg-card/70"
       >
         <UIcon
           name="i-lucide-loader-circle"
@@ -335,19 +335,32 @@ watch(phase, () => {
 </template>
 
 <style scoped>
+.task-calendar {
+  --calendar-grid-line: #d4d4d4;
+  --calendar-day-other: #ededed;
+  --calendar-button-hover: #e5e5e5;
+}
+
+:global(.dark) .task-calendar,
+.dark .task-calendar {
+  --calendar-grid-line: #3f3f3f;
+  --calendar-day-other: #2b2b2b;
+  --calendar-button-hover: #333333;
+}
+
 .task-calendar :deep(.fc) {
-  --fc-border-color: var(--border);
-  --fc-page-bg-color: var(--background);
-  --fc-neutral-bg-color: color-mix(in oklab, var(--muted) 80%, transparent);
+  --fc-border-color: var(--calendar-grid-line);
+  --fc-page-bg-color: var(--card);
+  --fc-neutral-bg-color: color-mix(in oklab, var(--muted) 70%, var(--card));
   --fc-today-bg-color: transparent;
   --fc-list-event-hover-bg-color: var(--muted);
   --fc-highlight-color: color-mix(in oklab, var(--aeto-teal) 12%, transparent);
   --fc-button-bg-color: transparent;
   --fc-button-border-color: transparent;
   --fc-button-text-color: var(--muted-foreground);
-  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-bg-color: var(--calendar-button-hover);
   --fc-button-hover-border-color: transparent;
-  --fc-button-active-bg-color: var(--muted);
+  --fc-button-active-bg-color: var(--calendar-button-hover);
   --fc-button-active-border-color: transparent;
   font-family: inherit;
   color: var(--foreground);
@@ -359,8 +372,15 @@ watch(phase, () => {
   justify-content: space-between;
   gap: 0.75rem;
   margin: 0;
-  padding: 0.875rem 1rem;
-  border-bottom: 1px solid var(--border);
+  padding: 0.875rem 1rem 0.25rem;
+  border: 0 !important;
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+.task-calendar :deep(.fc .fc-header-toolbar) {
+  border: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .task-calendar :deep(.fc .fc-toolbar-chunk) {
@@ -391,9 +411,10 @@ watch(phase, () => {
   text-transform: none;
 }
 
+.task-calendar :deep(.fc .fc-button-primary:not(:disabled):hover),
 .task-calendar :deep(.fc .fc-button-primary:not(:disabled).fc-button-active),
 .task-calendar :deep(.fc .fc-button-primary:not(:disabled):active) {
-  background: var(--muted);
+  background: var(--calendar-button-hover);
   border-color: transparent;
   color: var(--foreground);
 }
@@ -413,22 +434,69 @@ watch(phase, () => {
   opacity: 0.45;
 }
 
+/* Padding interno para que la grilla no toque el borde del contenedor. */
+.task-calendar :deep(.fc .fc-view-harness) {
+  padding: 0.75rem 1rem 1rem;
+  background: var(--card);
+  box-sizing: border-box;
+}
+
+/* Con height auto no hay scroll: evita el gutter que desalinea la derecha. */
+.task-calendar :deep(.fc .fc-scroller) {
+  overflow: visible !important;
+}
+
+.task-calendar :deep(.fc .fc-scroller-liquid-absolute) {
+  position: static !important;
+}
+
 .task-calendar :deep(.fc .fc-scrollgrid),
 .task-calendar :deep(.fc .fc-scrollgrid table),
 .task-calendar :deep(.fc .fc-scrollgrid td),
 .task-calendar :deep(.fc .fc-scrollgrid th) {
-  border-color: var(--border) !important;
+  border-color: var(--calendar-grid-line) !important;
 }
 
 .task-calendar :deep(.fc .fc-scrollgrid) {
-  border-left: 0;
-  border-right: 0;
-  border-bottom: 0;
+  /* Sin marco exterior: solo líneas internas entre celdas. */
+  border: 0 !important;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--card);
+}
+
+.task-calendar :deep(.fc .fc-scrollgrid-section > td),
+.task-calendar :deep(.fc .fc-scrollgrid-section > th) {
+  border-color: var(--calendar-grid-line) !important;
+}
+
+/* Sin borde en los extremos exteriores (izquierda, derecha, arriba). */
+.task-calendar :deep(.fc .fc-scrollgrid td:last-child),
+.task-calendar :deep(.fc .fc-scrollgrid th:last-child) {
+  border-right: 0 !important;
+}
+
+.task-calendar :deep(.fc .fc-scrollgrid td:first-child),
+.task-calendar :deep(.fc .fc-scrollgrid th:first-child) {
+  border-left: 0 !important;
+}
+
+.task-calendar :deep(.fc .fc-scrollgrid-section-header > *) {
+  border-top: 0 !important;
+}
+
+/* Sin borde en la fila inferior (última semana). */
+.task-calendar :deep(.fc .fc-scrollgrid-section-body:last-child > td) {
+  border-bottom: 0 !important;
+}
+
+.task-calendar :deep(.fc .fc-daygrid-body tr:last-child td) {
+  border-bottom: 0 !important;
 }
 
 .task-calendar :deep(.fc .fc-col-header-cell) {
-  background: transparent;
-  border-bottom-color: var(--border);
+  background: var(--card);
+  border-bottom-color: var(--calendar-grid-line);
   padding: 0.5rem 0.5rem 0.375rem;
 }
 
@@ -444,7 +512,7 @@ watch(phase, () => {
 }
 
 .task-calendar :deep(.fc .fc-daygrid-day) {
-  background: var(--background);
+  background: var(--card);
   min-height: 6.5rem;
 }
 
@@ -500,7 +568,7 @@ watch(phase, () => {
 }
 
 .task-calendar :deep(.fc .fc-day-other) {
-  background: color-mix(in oklab, var(--muted) 70%, var(--background));
+  background: var(--calendar-day-other);
 }
 
 .task-calendar :deep(.fc .fc-day-other .fc-daygrid-day-number) {
