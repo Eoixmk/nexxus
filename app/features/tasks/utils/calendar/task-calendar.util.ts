@@ -47,12 +47,13 @@ function darkenHex(hex: string, amount = 0.45): string {
   return `#${channels.map(channel => channel.toString(16).padStart(2, '0')).join('')}`
 }
 
-function eventColors(task: Task) {
-  const color = taskBarColor(task)
+/** `color` fuerza el color (modo por tema); si no, usa el de la tarea. */
+function eventColors(task: Task, color?: string) {
+  const resolved = color ?? taskBarColor(task)
   return {
-    backgroundColor: hexToRgba(color, 0.22),
-    borderColor: color,
-    textColor: darkenHex(color),
+    backgroundColor: hexToRgba(resolved, 0.22),
+    borderColor: resolved,
+    textColor: darkenHex(resolved),
   }
 }
 
@@ -60,7 +61,7 @@ function eventColors(task: Task) {
  * Vista Inicio: la tarea aparece solo el día de `start_date`
  * (sin importar cuántos días dure hasta limit_date).
  */
-export function taskToStartCalendarEvent(task: Task): EventInput | null {
+export function taskToStartCalendarEvent(task: Task, color?: string): EventInput | null {
   const start = toDateOnly(task.start_date)
   if (!start) {
     return null
@@ -71,7 +72,7 @@ export function taskToStartCalendarEvent(task: Task): EventInput | null {
     title: task.short_description,
     start,
     allDay: true,
-    ...eventColors(task),
+    ...eventColors(task, color),
   }
 }
 
@@ -82,7 +83,7 @@ export function taskToStartCalendarEvent(task: Task): EventInput | null {
  * Importante: no limitar filas visibles en esta fase; si FullCalendar
  * oculta el inicio de una barra multi-día, parece que empezó otro día.
  */
-export function taskToProcessCalendarEvent(task: Task): EventInput | null {
+export function taskToProcessCalendarEvent(task: Task, color?: string): EventInput | null {
   const start = toDateOnly(task.start_date)
   if (!start) {
     return null
@@ -99,7 +100,7 @@ export function taskToProcessCalendarEvent(task: Task): EventInput | null {
     start,
     end: endExclusive,
     allDay: true,
-    ...eventColors(task),
+    ...eventColors(task, color),
   }
 }
 
@@ -107,7 +108,7 @@ export function taskToProcessCalendarEvent(task: Task): EventInput | null {
  * Vista Cierre: la tarea aparece solo el día de `limit_date`
  * (fecha de cierre), sin importar el rango completo.
  */
-export function taskToCloseCalendarEvent(task: Task): EventInput | null {
+export function taskToCloseCalendarEvent(task: Task, color?: string): EventInput | null {
   const closeDate = toDateOnly(task.limit_date)
   if (!closeDate) {
     return null
@@ -118,25 +119,21 @@ export function taskToCloseCalendarEvent(task: Task): EventInput | null {
     title: task.short_description,
     start: closeDate,
     allDay: true,
-    ...eventColors(task),
+    ...eventColors(task, color),
   }
 }
 
-export function tasksToCalendarEvents(
-  tasks: Task[],
-  phase: TaskCalendarPhase = 'start',
-): EventInput[] {
-  const mapper = phase === 'process'
+/** Devuelve el mapper de tarea → evento para la fase indicada. */
+function phaseMapper(phase: TaskCalendarPhase) {
+  return phase === 'process'
     ? taskToProcessCalendarEvent
     : phase === 'close'
       ? taskToCloseCalendarEvent
       : taskToStartCalendarEvent
+}
 
-  const events = tasks
-    .map(mapper)
-    .filter((event): event is EventInput => event != null)
-
-  // Orden estable por fecha de inicio.
+/** Orden estable por fecha de inicio y luego título. */
+function sortEvents(events: EventInput[]): EventInput[] {
   return events.sort((a, b) => {
     const startA = String(a.start ?? '')
     const startB = String(b.start ?? '')
@@ -145,4 +142,49 @@ export function tasksToCalendarEvents(
     }
     return String(a.title ?? '').localeCompare(String(b.title ?? ''))
   })
+}
+
+export function tasksToCalendarEvents(
+  tasks: Task[],
+  phase: TaskCalendarPhase = 'start',
+): EventInput[] {
+  const mapper = phaseMapper(phase)
+  const events = tasks
+    .map(task => mapper(task))
+    .filter((event): event is EventInput => event != null)
+
+  return sortEvents(events)
+}
+
+/** Proyecto con sus tareas y color asignado (modo "por tema"). */
+export interface CalendarProjectEvents {
+  id: number
+  color: string
+  tasks: Task[]
+}
+
+/**
+ * Modo "por tema": cada proyecto aporta sus tareas con su color asignado.
+ * Se guarda `projectId` en extendedProps para poder filtrar por proyecto.
+ */
+export function projectTasksToCalendarEvents(
+  projects: CalendarProjectEvents[],
+  phase: TaskCalendarPhase = 'start',
+): EventInput[] {
+  const mapper = phaseMapper(phase)
+  const events: EventInput[] = []
+
+  for (const project of projects) {
+    for (const task of project.tasks) {
+      const event = mapper(task, project.color)
+      if (event) {
+        events.push({
+          ...event,
+          extendedProps: { projectId: project.id },
+        })
+      }
+    }
+  }
+
+  return sortEvents(events)
 }

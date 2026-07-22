@@ -14,9 +14,10 @@ import type {
   MoreLinkArg,
 } from '@fullcalendar/core'
 import { useCalendarTasks } from '~/features/tasks/composables/calendar/useCalendarTasks'
-import type { TaskCalendarPhase, TaskListFilters } from '~/features/tasks/types/task.types'
+import { useCalendarProjectTasks } from '~/features/tasks/composables/calendar/useCalendarProjectTasks'
+import type { TaskCalendarPhase, TaskGroupBy, TaskListFilters } from '~/features/tasks/types/task.types'
 import { extractResults } from '~/shared/utils/paginated.util'
-import { tasksToCalendarEvents } from '~/features/tasks/utils/calendar/task-calendar.util'
+import { projectTasksToCalendarEvents, tasksToCalendarEvents } from '~/features/tasks/utils/calendar/task-calendar.util'
 
 const COLLAPSED_EVENT_ROWS = 3
 const PHASE_TRANSITION_MS = 180
@@ -24,9 +25,14 @@ const PHASE_TRANSITION_MS = 180
 const props = defineProps<{
   filters: TaskListFilters
   phase?: TaskCalendarPhase
+  groupBy?: TaskGroupBy
 }>()
 
 const phase = computed(() => props.phase ?? 'start')
+/** Modo "por tema": las tareas se agrupan y colorean por proyecto. */
+const projectMode = computed(() => props.groupBy === 'topic')
+/** Proyectos ocultos desde la leyenda inferior. */
+const hiddenProjectIds = ref(new Set<number>())
 
 const now = new Date()
 const visibleMonth = ref({
@@ -34,7 +40,48 @@ const visibleMonth = ref({
   month: now.getMonth() + 1,
 })
 
-const { tasks } = useCalendarTasks(visibleMonth, () => props.filters, phase)
+const { tasks } = useCalendarTasks(
+  visibleMonth,
+  () => props.filters,
+  phase,
+  () => !projectMode.value,
+)
+
+const {
+  projects: calendarProjects,
+  isPending: projectsPending,
+  isError: projectsError,
+} = useCalendarProjectTasks(() => props.filters, () => projectMode.value)
+
+const visibleProjects = computed(() =>
+  calendarProjects.value.filter(project => !hiddenProjectIds.value.has(project.id)),
+)
+
+const sourceEvents = computed<EventInput[]>(() => {
+  if (projectMode.value) {
+    return projectTasksToCalendarEvents(visibleProjects.value, phase.value)
+  }
+  return tasksToCalendarEvents(extractResults(tasks.data.value), phase.value)
+})
+
+const isPending = computed(() =>
+  projectMode.value ? projectsPending.value : tasks.isPending.value,
+)
+
+const isError = computed(() =>
+  projectMode.value ? projectsError.value : tasks.isError.value,
+)
+
+function toggleProject(id: number) {
+  const next = new Set(hiddenProjectIds.value)
+  if (next.has(id)) {
+    next.delete(id)
+  }
+  else {
+    next.add(id)
+  }
+  hiddenProjectIds.value = next
+}
 
 const calendarRef = ref<{ getApi: () => CalendarApi } | null>(null)
 const calendarRoot = ref<HTMLElement | null>(null)
@@ -275,26 +322,23 @@ async function applyCalendarEvents(events: EventInput[], animate: boolean) {
   syncWeekToggleButtons()
 }
 
+// Al cambiar fase o modo reiniciamos semanas expandidas y recalculamos filas.
+watch([phase, projectMode], () => {
+  expandedWeeks.value = new Set()
+  applyDayMaxEventRows()
+})
+
+// Fuente única de eventos: calendario global o agrupado por proyecto.
+// applyCalendarEvents solo anima cuando ya había eventos (evita animar el
+// primer render, pero sí las transiciones de fase / toggles de proyecto).
 watch(
-  () => tasks.data.value,
-  (data) => {
+  sourceEvents,
+  (events) => {
     applyDayMaxEventRows()
-    void applyCalendarEvents(
-      tasksToCalendarEvents(extractResults(data), phase.value),
-      false,
-    )
+    void applyCalendarEvents(events, true)
   },
   { immediate: true },
 )
-
-watch(phase, () => {
-  expandedWeeks.value = new Set()
-  applyDayMaxEventRows()
-  void applyCalendarEvents(
-    tasksToCalendarEvents(extractResults(tasks.data.value), phase.value),
-    true,
-  )
-})
 </script>
 
 <template>
@@ -309,7 +353,7 @@ watch(phase, () => {
       }"
     >
       <div
-        v-if="tasks.isPending.value"
+        v-if="isPending"
         class="absolute inset-0 z-10 flex items-center justify-center bg-card/70"
       >
         <UIcon
@@ -319,7 +363,7 @@ watch(phase, () => {
       </div>
 
       <p
-        v-else-if="tasks.isError.value"
+        v-else-if="isError"
         class="px-4 py-6 text-sm text-error"
       >
         No se pudieron cargar las tareas del calendario.
@@ -331,10 +375,46 @@ watch(phase, () => {
         @dates-set="syncFromDatesSet"
       />
     </div>
+
+    <Transition name="calendar-legend">
+      <div
+        v-if="projectMode && calendarProjects.length > 0"
+        class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 px-4"
+      >
+        <button
+          v-for="project in calendarProjects"
+          :key="project.id"
+          type="button"
+          class="inline-flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+          :class="hiddenProjectIds.has(project.id) ? 'opacity-40' : 'text-foreground'"
+          :aria-pressed="!hiddenProjectIds.has(project.id)"
+          @click="toggleProject(project.id)"
+        >
+          <span
+            class="h-2.5 w-2.5 shrink-0 rounded-full"
+            :style="{ backgroundColor: project.color }"
+          />
+          <span :class="{ 'line-through': hiddenProjectIds.has(project.id) }">
+            {{ project.name }}
+          </span>
+        </button>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
+.calendar-legend-enter-active,
+.calendar-legend-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.calendar-legend-enter-from,
+.calendar-legend-leave-to {
+  opacity: 0;
+  transform: translateY(-0.25rem);
+}
+
 .task-calendar {
   --calendar-grid-line: #d4d4d4;
   --calendar-day-other: #ededed;

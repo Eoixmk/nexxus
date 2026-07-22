@@ -97,6 +97,7 @@ useSeoMeta({
         v-else-if="view === 'calendar'"
         :filters="filters"
         :phase="calendarPhase"
+        :group-by="groupBy"
       />
 
       <div

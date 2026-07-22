@@ -24,6 +24,7 @@ export function useCalendarTasks(
   period: MaybeRefOrGetter<CalendarMonth>,
   filters: MaybeRefOrGetter<TaskListFilters> = {},
   phase: MaybeRefOrGetter<TaskCalendarPhase> = 'start',
+  enabled: MaybeRefOrGetter<boolean> = true,
 ) {
   const { $api } = useNuxtApp()
   const companyId = 1
@@ -31,6 +32,7 @@ export function useCalendarTasks(
   const year = computed(() => toValue(period).year)
   const month = computed(() => toValue(period).month)
   const resolvedPhase = computed(() => toValue(phase))
+  const isEnabled = computed(() => toValue(enabled))
   const query = computed(() => ({
     year: year.value,
     month: month.value,
@@ -56,6 +58,7 @@ export function useCalendarTasks(
       $api<PaginatedResponse<Task>>(path.value, {
         query: query.value,
       }),
+    enabled: isEnabled,
   })
 
   return { tasks }
