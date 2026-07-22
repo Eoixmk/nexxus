@@ -3,9 +3,11 @@ import { useQuery } from '@tanstack/vue-query'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { SelectItem } from '@nuxt/ui'
 import type { PaginatedResponse } from '~/shared/types/api.types'
-import type { NewTaskFormType, ProjectDropdown, TaskEffort, UserDropdown } from '~/features/tasks/types/task.types'
+import type { NewTaskFormType, ProjectDropdown, TaskEffort, TaskGroupBy, TaskView, UserDropdown } from '~/features/tasks/types/task.types'
 import { useCreateTask } from '~/features/tasks/composables/useCreateTask'
+import { useGroupsDropdown } from '~/features/tasks/composables/useGroupsDropdown'
 import { useTaskDetail } from '~/features/tasks/composables/useTaskDetail'
+import TaskStartProcessModal from '~/features/tasks/components/TaskStartProcessModal.vue'
 import { extractResults } from '~/shared/utils/paginated.util'
 import {
   buildCreateTaskPayload,
@@ -26,6 +28,17 @@ interface NewTaskFormState extends NewTaskFormInput {
 const open = defineModel<boolean>('open', { default: false })
 const taskId = defineModel<number | null>('taskId', { default: null })
 
+const props = withDefaults(
+  defineProps<{
+    view?: TaskView
+    groupBy?: TaskGroupBy
+  }>(),
+  {
+    view: 'list',
+    groupBy: 'all',
+  },
+)
+
 const { t } = useI18n()
 const { user } = useAuth()
 const { $api } = useNuxtApp()
@@ -33,17 +46,27 @@ const companyId = 1
 
 const formId = 'new-task-form'
 const submitError = ref('')
+const startProcessModalOpen = ref(false)
 /** Con taskId el slideover es detalle view-only (sin submit ni edición). */
 const isDetailView = computed(() => taskId.value != null)
 
 const { mutateAsync: createTask, isPending } = useCreateTask()
 const taskDetailQuery = useTaskDetail(() => (open.value ? taskId.value : null))
 
+/** En Kanban All + Pending: acción para iniciar proceso. */
+const showStartProcess = computed(() =>
+  isDetailView.value
+  && props.view === 'kanban'
+  && props.groupBy === 'all'
+  && taskDetailQuery.data.value?.status === 'pending',
+)
+
 const state = reactive<NewTaskFormState>({
   type: 'manual',
   name: '',
   description: '',
   project: undefined,
+  group: undefined,
   assignedTo: [],
   taskReviewer: defaultTaskReviewers(user.value?.id),
   dueDate: '',
@@ -87,6 +110,8 @@ const usersQuery = useQuery({
   enabled: computed(() => open.value),
 })
 
+const { groups: groupsQuery, items: groupItems } = useGroupsDropdown(() => open.value)
+
 const projectItems = computed<SelectItem[]>(() =>
   extractResults(projectsQuery.data.value).map(project => ({
     label: project.name,
@@ -106,6 +131,7 @@ function resetForm() {
   state.name = ''
   state.description = ''
   state.project = undefined
+  state.group = undefined
   state.assignedTo = []
   state.taskReviewer = defaultTaskReviewers(user.value?.id)
   state.dueDate = ''
@@ -124,6 +150,7 @@ function applyFormInput(input: NewTaskFormInput) {
   state.name = input.name
   state.description = input.description
   state.project = input.project
+  state.group = input.group
   state.assignedTo = [...input.assignedTo]
   state.taskReviewer = input.taskReviewer.length
     ? [...input.taskReviewer]
@@ -147,10 +174,19 @@ function close() {
   open.value = false
 }
 
+function openStartProcessModal() {
+  startProcessModalOpen.value = true
+}
+
+function onProcessStarted() {
+  close()
+}
+
 function validationMessage(code: string): string {
   const messages: Record<string, string> = {
     name_required: t('tasks.form.validation.nameRequired'),
     project_required: t('tasks.form.validation.projectRequired'),
+    group_required: t('tasks.form.validation.groupRequired'),
     assigned_to_required: t('tasks.form.validation.assignedToRequired'),
     due_date_required: t('tasks.form.validation.dueDateRequired'),
     task_reviewer_required: t('tasks.form.validation.taskReviewerRequired'),
@@ -211,6 +247,7 @@ watch(open, (isOpen) => {
   if (!isOpen) {
     resetForm()
     submitError.value = ''
+    startProcessModalOpen.value = false
     taskId.value = null
   }
 })
@@ -446,20 +483,37 @@ watch(
             />
           </UFormField>
 
-          <UFormField
-            :label="t('tasks.form.topic')"
-            name="project"
-            :required="!isDetailView"
-          >
-            <USelect
-              v-model="state.project"
-              :items="projectItems"
-              :placeholder="t('tasks.form.topicPlaceholder')"
-              :loading="projectsQuery.isPending.value"
-              :disabled="isDetailView"
-              class="w-full"
-            />
-          </UFormField>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <UFormField
+              :label="t('tasks.form.topic')"
+              name="project"
+              :required="!isDetailView"
+            >
+              <USelect
+                v-model="state.project"
+                :items="projectItems"
+                :placeholder="t('tasks.form.topicPlaceholder')"
+                :loading="projectsQuery.isPending.value"
+                :disabled="isDetailView"
+                class="w-full"
+              />
+            </UFormField>
+
+            <UFormField
+              :label="t('tasks.form.group')"
+              name="group"
+              :required="!isDetailView"
+            >
+              <USelect
+                v-model="state.group"
+                :items="groupItems"
+                :placeholder="t('tasks.form.groupPlaceholder')"
+                :loading="groupsQuery.isPending.value"
+                :disabled="isDetailView"
+                class="w-full"
+              />
+            </UFormField>
+          </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <UFormField
@@ -608,7 +662,20 @@ watch(
           :loading="isPending"
           :disabled="isPending"
         />
+        <UButton
+          v-else-if="showStartProcess"
+          :label="t('tasks.processStart.submit')"
+          color="primary"
+          @click="openStartProcessModal"
+        />
       </div>
     </template>
   </USlideover>
+
+  <TaskStartProcessModal
+    v-if="taskId != null"
+    v-model:open="startProcessModalOpen"
+    :task-id="taskId"
+    @success="onProcessStarted"
+  />
 </template>

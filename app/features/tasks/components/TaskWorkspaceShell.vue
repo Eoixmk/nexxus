@@ -124,6 +124,8 @@ const {
     <TaskNewTaskSlideover
       v-model:open="newTaskOpen"
       v-model:task-id="selectedTaskId"
+      :view="view"
+      :group-by="groupBy"
     />
   </div>
 </template>

@@ -119,6 +119,21 @@
       "dropHere": "Drop here",
       "dropHint": "You can drop tasks here"
     },
+    "processStart": {
+      "submit": "In Progress",
+      "modalTitle": "Start process",
+      "modalDescription": "You can optionally add a comment and images.",
+      "comment": "Comment",
+      "commentPlaceholder": "Example comment",
+      "images": "Images",
+      "optional": "Optional",
+      "dropLabel": "Drop your image here",
+      "dropDescription": "SVG, PNG or JPG",
+      "confirm": "Confirm",
+      "successTitle": "Process started",
+      "successDescription": "The task moved to In progress.",
+      "errorTitle": "Could not start the process"
+    },
     "due": {
       "today": "Today",
       "tomorrow": "Tomorrow",
@@ -150,6 +165,8 @@
       "descriptionPlaceholder": "Optional additional context...",
       "topic": "Topic",
       "topicPlaceholder": "Select a topic...",
+      "group": "Group",
+      "groupPlaceholder": "Select a group...",
       "assignedTo": "Assigned to",
       "assignedToPlaceholder": "Select one or more users...",
       "dueDate": "Due date",
@@ -172,6 +189,7 @@
       "validation": {
         "nameRequired": "Name is required",
         "projectRequired": "Select a topic",
+        "groupRequired": "Select a group",
         "assignedToRequired": "Select at least one assigned user",
         "dueDateRequired": "Select a due date",
         "taskReviewerRequired": "Select at least one collaborator who must confirm"
