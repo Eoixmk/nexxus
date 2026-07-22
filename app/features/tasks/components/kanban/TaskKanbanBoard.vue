@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { KanbanColumn, KanbanTaskMove } from '~/features/tasks/types/task.types'
-import TaskKanbanColumn from '~/features/tasks/components/TaskKanbanColumn.vue'
+import TaskKanbanColumn from '~/features/tasks/components/kanban/TaskKanbanColumn.vue'
 
 const props = defineProps<{
   columns: KanbanColumn[]

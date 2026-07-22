@@ -72,9 +72,10 @@ export default defineNuxtConfig({
     dirs: [
       'shared/composables',
       'shared/utils',
-      'features/**/composables',
-      'features/**/schemas',
-      'features/**/utils',
+      // /** incluye subdominios (workspace/, list/, kanban/, form/, shared/…)
+      'features/**/composables/**',
+      'features/**/schemas/**',
+      'features/**/utils/**',
     ],
     presets: [
       { from: 'zod', imports: ['z'] },

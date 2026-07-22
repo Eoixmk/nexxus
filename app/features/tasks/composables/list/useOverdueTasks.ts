@@ -1,6 +1,6 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { OverdueCounts, TaskBoardSection, TaskListFilters } from '~/features/tasks/types/task.types'
-import { createCompanyTasksApi } from '~/features/tasks/composables/createCompanyTasksApi'
+import { createCompanyTasksApi } from '~/features/tasks/composables/shared/createCompanyTasksApi'
 import { extractResults } from '~/shared/utils/paginated.util'
 
 const OVERDUE_SECTIONS = [

@@ -13,10 +13,10 @@ import type {
   EventMountArg,
   MoreLinkArg,
 } from '@fullcalendar/core'
-import { useCalendarTasks } from '~/features/tasks/composables/useCalendarTasks'
+import { useCalendarTasks } from '~/features/tasks/composables/calendar/useCalendarTasks'
 import type { TaskCalendarPhase, TaskListFilters } from '~/features/tasks/types/task.types'
 import { extractResults } from '~/shared/utils/paginated.util'
-import { tasksToCalendarEvents } from '~/features/tasks/utils/task-calendar.util'
+import { tasksToCalendarEvents } from '~/features/tasks/utils/calendar/task-calendar.util'
 
 const COLLAPSED_EVENT_ROWS = 3
 const PHASE_TRANSITION_MS = 180

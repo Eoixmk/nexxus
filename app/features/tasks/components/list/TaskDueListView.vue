@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TaskSection from '~/features/tasks/components/TaskSection.vue'
+import TaskSection from '~/features/tasks/components/list/TaskSection.vue'
 import type { TaskListFilters } from '~/features/tasks/types/task.types'
 
 const props = withDefaults(

@@ -4,19 +4,19 @@ description: >-
   Enforces this Nuxt 4 project's Scream Architecture. Pages use folder-per-route
   (each route is a folder with index.vue) and features live under
   app/features/<feature>/ with components/composables/schemas/types/utils
-  subfolders. Code goes to app/shared/ ONLY when it is reusable across the whole
-  project; otherwise it belongs to its feature. Use when creating, moving, or
-  organizing pages, components, composables, utils, types, or schemas in this
-  repo.
+  subfolders. Growing features split by subdomain (workspace, list, kanban,
+  form…). Code goes to app/shared/ ONLY when reusable across the whole project.
+  Use when creating, moving, or organizing pages, components, composables,
+  utils, types, or schemas in this repo.
 ---
 
 # Scream Architecture (Nexxus front)
 
-Organize code by **domain/feature**, not by technical type. The folder structure should "scream" what the app does. Apply KISS and SOLID.
+Organize code by **domain/feature**, not by technical type. The folder structure should "scream" what the app does. Apply **KISS** and SOLID.
 
 ## The one rule for `shared`
 
-Something goes to `app/shared/` **only if it is reusable across the whole project**. If it belongs to a single feature, it lives inside that feature. There is no `app/features/shared/` — project-wide code always goes to the top-level `app/shared/`.
+Something goes to `app/shared/` **only if it is reusable across the whole project**. If it belongs to a single feature, it lives inside that feature. There is no `app/features/shared/` at the features root — project-wide code always goes to the top-level `app/shared/`.
 
 Decision when creating a file:
 
@@ -50,13 +50,67 @@ app/features/<feature>/
 └── utils/          # feature-only helpers
 ```
 
-Example:
+Small feature example (flat is fine):
 
 ```
 app/features/projects/
 ├── composables/useProjects.ts
 └── types/project.types.ts
 ```
+
+## Growing features: subdominios (KISS)
+
+When a feature grows and a flat `components/` / `composables/` becomes hard to navigate, **split by subdomain inside the feature** — do not invent new top-level features just to tidy folders.
+
+Test: *“If I delete subdomain X tomorrow, which folder goes away entirely?”* That folder is the subdomain.
+
+### When to split
+
+- Split when files mix unrelated concerns (shell, list, kanban, form…) and navigation suffers.
+- **Do not** split a small feature early.
+- **Do not** extract a top-level `app/features/kanban` (etc.) while it still shares shell, filters, types, and create/detail with the parent feature.
+
+### Layout inside a large feature
+
+Mirror the same technical folders under each subdomain. Use `shared/` **only inside the feature** for pieces used by 2+ subdomains of that feature (not app-wide).
+
+```
+app/features/<feature>/
+├── components/
+│   ├── workspace/     # shell, filters, view switchers
+│   ├── list/
+│   ├── kanban/
+│   ├── calendar/
+│   ├── form/          # create / detail / process modals
+│   └── shared/        # UI reused across THIS feature’s subdomains
+├── composables/
+│   ├── workspace/
+│   ├── list/
+│   ├── kanban/
+│   ├── calendar/
+│   ├── form/
+│   └── shared/        # api helpers, dropdowns, presentation shared in-feature
+├── utils/
+│   ├── form/
+│   ├── kanban/
+│   ├── calendar/
+│   └── *.util.ts      # cross-subdomain utils can stay at utils/ root
+└── types/
+    └── <feature>.types.ts   # split types only when the file hurts; KISS first
+```
+
+Reference: `app/features/tasks/` follows this layout.
+
+### Naming of subdomains
+
+Use short domain names (`workspace`, `list`, `kanban`, `form`), not technical junk (`ui`, `hooks`, `helpers` as catch-alls). Prefer clarity over clever nesting (one level of subdomain is enough).
+
+### Checklist for new files in a large feature
+
+1. Which subdomain owns this? → put it there.
+2. Used by 2+ subdomains of the same feature? → `components/shared/` or `composables/shared/`.
+3. Used by multiple features / the whole app? → `app/shared/`.
+4. Keep types flat until a single `*.types.ts` becomes painful.
 
 ## `app/shared/` layout (project-wide only)
 
@@ -72,7 +126,7 @@ app/shared/
 
 ## Auto-imports & config (from `nuxt.config.ts`)
 
-- Auto-imported dirs (no import statement needed): `shared/composables`, `shared/utils`, `features/**/composables`, `features/**/schemas`, `features/**/utils`. Also `z` from zod.
+- Auto-imported dirs (no import statement needed): `shared/composables`, `shared/utils`, `features/**/composables/**`, `features/**/schemas/**`, `features/**/utils/**`. Also `z` from zod. The trailing `/**` is required so subdomain folders (`composables/workspace/`, `utils/form/`, …) are scanned.
 - Components: `~/shared/components` are registered **without prefix**; `~/features/**/components/**` are registered **with path prefix**.
 - Layouts live in `app/shared/layouts` (via `dir.layouts`).
 - **Types are NOT auto-imported** — import them explicitly, e.g. `import type { Project } from '~/features/projects/types/project.types'`.

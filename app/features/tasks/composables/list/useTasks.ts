@@ -1,6 +1,6 @@
 import type { MaybeRefOrGetter } from 'vue'
 import type { TaskCounts, TaskListFilters } from '~/features/tasks/types/task.types'
-import { createCompanyTasksApi } from '~/features/tasks/composables/createCompanyTasksApi'
+import { createCompanyTasksApi } from '~/features/tasks/composables/shared/createCompanyTasksApi'
 
 /**
  * Server state del módulo de tareas (vista Lista) vía TanStack Query.

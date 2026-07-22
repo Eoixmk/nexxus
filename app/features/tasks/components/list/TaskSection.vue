@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Task } from '~/features/tasks/types/task.types'
-import TaskItem from '~/features/tasks/components/TaskItem.vue'
-import TaskSectionBadgeFallback from '~/features/tasks/components/TaskSectionBadgeFallback.vue'
+import TaskItem from '~/features/tasks/components/list/TaskItem.vue'
+import TaskSectionBadgeFallback from '~/features/tasks/components/shared/TaskSectionBadgeFallback.vue'
 
 withDefaults(
   defineProps<{

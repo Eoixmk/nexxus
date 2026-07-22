@@ -4,17 +4,17 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 import type { SelectItem } from '@nuxt/ui'
 import type { PaginatedResponse } from '~/shared/types/api.types'
 import type { NewTaskFormType, ProjectDropdown, TaskEffort, TaskGroupBy, TaskView, UserDropdown } from '~/features/tasks/types/task.types'
-import { useCreateTask } from '~/features/tasks/composables/useCreateTask'
-import { useGroupsDropdown } from '~/features/tasks/composables/useGroupsDropdown'
-import { useTaskDetail } from '~/features/tasks/composables/useTaskDetail'
-import TaskStartProcessModal from '~/features/tasks/components/TaskStartProcessModal.vue'
+import { useCreateTask } from '~/features/tasks/composables/form/useCreateTask'
+import { useGroupsDropdown } from '~/features/tasks/composables/shared/useGroupsDropdown'
+import { useTaskDetail } from '~/features/tasks/composables/form/useTaskDetail'
+import TaskStartProcessModal from '~/features/tasks/components/form/TaskStartProcessModal.vue'
 import { extractResults } from '~/shared/utils/paginated.util'
 import {
   buildCreateTaskPayload,
   defaultTaskReviewers,
   taskDetailToFormInput,
   type NewTaskFormInput,
-} from '~/features/tasks/utils/task-form.util'
+} from '~/features/tasks/utils/form/task-form.util'
 
 interface NewTaskFormState extends NewTaskFormInput {
   volumeCountWhat: string

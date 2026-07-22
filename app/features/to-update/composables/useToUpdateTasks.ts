@@ -9,7 +9,7 @@ import {
   TO_UPDATE_SECTION_META,
   TO_UPDATE_SECTION_ORDER,
 } from '~/features/to-update/utils/to-update-sections.util'
-import { createCompanyTasksApi } from '~/features/tasks/composables/createCompanyTasksApi'
+import { createCompanyTasksApi } from '~/features/tasks/composables/shared/createCompanyTasksApi'
 import { extractResults } from '~/shared/utils/paginated.util'
 
 /**

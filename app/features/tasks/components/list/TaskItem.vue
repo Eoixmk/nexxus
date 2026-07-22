@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TaskAssigneeAvatars from '~/features/tasks/components/TaskAssigneeAvatars.vue'
+import TaskAssigneeAvatars from '~/features/tasks/components/shared/TaskAssigneeAvatars.vue'
 import type { Task } from '~/features/tasks/types/task.types'
 
 const props = withDefaults(

@@ -1,32 +1,32 @@
 <script setup lang="ts">
-import TaskWorkspaceShell from '~/features/tasks/components/TaskWorkspaceShell.vue'
+import TaskWorkspaceShell from '~/features/tasks/components/workspace/TaskWorkspaceShell.vue'
 
 const TaskListView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskListView.vue'),
+  () => import('~/features/tasks/components/list/TaskListView.vue'),
 )
 const TaskDueListView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskDueListView.vue'),
+  () => import('~/features/tasks/components/list/TaskDueListView.vue'),
 )
 const TaskTopicListView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskTopicListView.vue'),
+  () => import('~/features/tasks/components/list/TaskTopicListView.vue'),
 )
 const TaskGroupListView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskGroupListView.vue'),
+  () => import('~/features/tasks/components/list/TaskGroupListView.vue'),
 )
 const TaskKanbanView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskKanbanView.vue'),
+  () => import('~/features/tasks/components/kanban/TaskKanbanView.vue'),
 )
 const TaskDueKanbanView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskDueKanbanView.vue'),
+  () => import('~/features/tasks/components/kanban/TaskDueKanbanView.vue'),
 )
 const TaskTopicKanbanView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskTopicKanbanView.vue'),
+  () => import('~/features/tasks/components/kanban/TaskTopicKanbanView.vue'),
 )
 const TaskGroupKanbanView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskGroupKanbanView.vue'),
+  () => import('~/features/tasks/components/kanban/TaskGroupKanbanView.vue'),
 )
 const TaskCalendarView = defineAsyncComponent(
-  () => import('~/features/tasks/components/TaskCalendarView.client.vue'),
+  () => import('~/features/tasks/components/calendar/TaskCalendarView.client.vue'),
 )
 
 definePageMeta({ middleware: 'auth' })

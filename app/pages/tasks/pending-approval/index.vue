@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TaskWorkspaceShell from '~/features/tasks/components/TaskWorkspaceShell.vue'
+import TaskWorkspaceShell from '~/features/tasks/components/workspace/TaskWorkspaceShell.vue'
 
 const ToUpdateListView = defineAsyncComponent(
   () => import('~/features/to-update/components/ToUpdateListView.vue'),

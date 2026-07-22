@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TaskKanbanBoard from '~/features/tasks/components/TaskKanbanBoard.vue'
+import TaskKanbanBoard from '~/features/tasks/components/kanban/TaskKanbanBoard.vue'
 import type { TaskListFilters } from '~/features/tasks/types/task.types'
 
 const props = withDefaults(

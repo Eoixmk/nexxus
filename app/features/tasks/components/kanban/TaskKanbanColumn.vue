@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { KanbanColumn } from '~/features/tasks/types/task.types'
-import TaskKanbanCard from '~/features/tasks/components/TaskKanbanCard.vue'
-import TaskSectionBadgeFallback from '~/features/tasks/components/TaskSectionBadgeFallback.vue'
+import TaskKanbanCard from '~/features/tasks/components/kanban/TaskKanbanCard.vue'
+import TaskSectionBadgeFallback from '~/features/tasks/components/shared/TaskSectionBadgeFallback.vue'
 
 const props = defineProps<{
   column: KanbanColumn

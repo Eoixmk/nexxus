@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import TaskCalendarPhaseFilter from '~/features/tasks/components/TaskCalendarPhaseFilter.vue'
-import TaskGroupByFilter from '~/features/tasks/components/TaskGroupByFilter.vue'
-import TaskListFilters from '~/features/tasks/components/TaskListFilters.vue'
-import TaskNewTaskSlideover from '~/features/tasks/components/TaskNewTaskSlideover.vue'
-import TaskViewSwitcher from '~/features/tasks/components/TaskViewSwitcher.vue'
+import TaskCalendarPhaseFilter from '~/features/tasks/components/workspace/TaskCalendarPhaseFilter.vue'
+import TaskGroupByFilter from '~/features/tasks/components/workspace/TaskGroupByFilter.vue'
+import TaskListFilters from '~/features/tasks/components/workspace/TaskListFilters.vue'
+import TaskNewTaskSlideover from '~/features/tasks/components/form/TaskNewTaskSlideover.vue'
+import TaskViewSwitcher from '~/features/tasks/components/workspace/TaskViewSwitcher.vue'
 import type { TaskView } from '~/features/tasks/types/task.types'
 
 withDefaults(
