@@ -351,6 +351,47 @@
       "createdTitle": "Topic created",
       "createdDescription": "The topic was created successfully.",
       "createErrorTitle": "Could not create topic"
+    },
+    "groups": {
+      "title": "Groups",
+      "subtitle": "Organize work teams. Set a manager and invite the members you need.",
+      "newGroup": "New group",
+      "infoBanner": "Groups bring people together under a manager. Use them to assign work and coordinate responsibilities.",
+      "options": "Options",
+      "edit": "Edit",
+      "toggleDetail": "Show or hide group detail",
+      "managerLabel": "Manager: {name}",
+      "managerSection": "Manager",
+      "managerBadge": "Manager",
+      "membersSection": "Members",
+      "membersHelp": "The manager tracks these users' performance on their dashboard.",
+      "membersCount": "{count} members",
+      "noMembers": "No members in this group",
+      "detailLoadError": "Could not load group detail",
+      "empty": "No groups yet",
+      "loadError": "Could not load groups"
+    },
+    "groupModal": {
+      "title": "New group",
+      "editTitle": "Edit group",
+      "name": "Group name",
+      "namePlaceholder": "E.g. Operations, North Sales, Dev",
+      "color": "Identifier color",
+      "customColor": "Custom color",
+      "manager": "Manager",
+      "managerPlaceholder": "Select a manager",
+      "members": "Members",
+      "membersPlaceholder": "Select members",
+      "membersHint": "You can add more members later.",
+      "cancel": "Cancel",
+      "create": "Create group",
+      "save": "Save changes",
+      "createdTitle": "Group created",
+      "createdDescription": "The group was created successfully.",
+      "createErrorTitle": "Could not create group",
+      "updatedTitle": "Group updated",
+      "updatedDescription": "The group was updated successfully.",
+      "updateErrorTitle": "Could not update group"
     }
   }
 }

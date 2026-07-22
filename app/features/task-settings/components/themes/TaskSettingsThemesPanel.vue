@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EnterpriseProject } from '~/features/projects/types/project.types'
 import type { TaskSettingsThemeTab } from '~/features/task-settings/types/task-settings.types'
-import TaskSettingsThemeCard from '~/features/task-settings/components/TaskSettingsThemeCard.vue'
+import TaskSettingsThemeCard from '~/features/task-settings/components/themes/TaskSettingsThemeCard.vue'
 
 defineProps<{
   projects: EnterpriseProject[]

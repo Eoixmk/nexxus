@@ -351,6 +351,47 @@
       "createdTitle": "Tema creado",
       "createdDescription": "El tema se creó correctamente.",
       "createErrorTitle": "No se pudo crear el tema"
+    },
+    "groups": {
+      "title": "Grupos",
+      "subtitle": "Organiza equipos de trabajo. Define un responsable e invita a los miembros que necesites.",
+      "newGroup": "Nuevo grupo",
+      "infoBanner": "Los grupos agrupan personas bajo un responsable. Úsalos para asignar trabajo y coordinar responsabilidades.",
+      "options": "Opciones",
+      "edit": "Editar",
+      "toggleDetail": "Mostrar u ocultar detalle del grupo",
+      "managerLabel": "Manager: {name}",
+      "managerSection": "Manager",
+      "managerBadge": "Manager",
+      "membersSection": "Miembros",
+      "membersHelp": "El manager mide el rendimiento de estos usuarios en su dashboard.",
+      "membersCount": "{count} miembros",
+      "noMembers": "No hay miembros en este grupo",
+      "detailLoadError": "No se pudo cargar el detalle del grupo",
+      "empty": "No hay grupos todavía",
+      "loadError": "No se pudieron cargar los grupos"
+    },
+    "groupModal": {
+      "title": "Nuevo grupo",
+      "editTitle": "Editar grupo",
+      "name": "Nombre del grupo",
+      "namePlaceholder": "Ej. Operaciones, Ventas Norte, Dev",
+      "color": "Color identificador",
+      "customColor": "Color personalizado",
+      "manager": "Manager",
+      "managerPlaceholder": "Selecciona un manager",
+      "members": "Miembros",
+      "membersPlaceholder": "Selecciona miembros",
+      "membersHint": "Puedes agregar más miembros después.",
+      "cancel": "Cancelar",
+      "create": "Crear grupo",
+      "save": "Guardar cambios",
+      "createdTitle": "Grupo creado",
+      "createdDescription": "El grupo se creó correctamente.",
+      "createErrorTitle": "No se pudo crear el grupo",
+      "updatedTitle": "Grupo actualizado",
+      "updatedDescription": "El grupo se actualizó correctamente.",
+      "updateErrorTitle": "No se pudo actualizar el grupo"
     }
   }
 }

@@ -1,25 +1,48 @@
 <script setup lang="ts">
-import TaskSettingsNavSidebar from '~/features/task-settings/components/TaskSettingsNavSidebar.vue'
-import TaskSettingsPlaceholderPanel from '~/features/task-settings/components/TaskSettingsPlaceholderPanel.vue'
-import TaskSettingsThemeModal from '~/features/task-settings/components/TaskSettingsThemeModal.vue'
-import TaskSettingsThemesPanel from '~/features/task-settings/components/TaskSettingsThemesPanel.vue'
+import TaskSettingsGroupModal from '~/features/task-settings/components/groups/TaskSettingsGroupModal.vue'
+import TaskSettingsGroupsPanel from '~/features/task-settings/components/groups/TaskSettingsGroupsPanel.vue'
+import TaskSettingsNavSidebar from '~/features/task-settings/components/shared/TaskSettingsNavSidebar.vue'
+import TaskSettingsPlaceholderPanel from '~/features/task-settings/components/shared/TaskSettingsPlaceholderPanel.vue'
+import TaskSettingsThemeModal from '~/features/task-settings/components/themes/TaskSettingsThemeModal.vue'
+import TaskSettingsThemesPanel from '~/features/task-settings/components/themes/TaskSettingsThemesPanel.vue'
 import type {
   TaskSettingsNavItem,
   TaskSettingsSectionId,
   ThemeFormState,
 } from '~/features/task-settings/types/task-settings.types'
 import { createEmptyThemeForm } from '~/features/task-settings/types/task-settings.types'
+import type {
+  CatalogueGroup,
+  CatalogueGroupDetail,
+  GroupFormState,
+} from '~/features/task-settings/types/group.types'
+import {
+  createEmptyGroupForm,
+  createGroupFormFromCatalogue,
+  createGroupFormFromDetail,
+} from '~/features/task-settings/types/group.types'
 import { useEnterpriseProjects } from '~/features/projects/composables/useEnterpriseProjects'
+import { useCatalogueGroups } from '~/features/task-settings/composables/groups/useCatalogueGroups'
+import { useCreateGroup } from '~/features/task-settings/composables/groups/useCreateGroup'
+import { useUpdateGroup } from '~/features/task-settings/composables/groups/useUpdateGroup'
 import { parseFetchError } from '~/shared/utils/error-message.util'
+import { useQueryClient } from '@tanstack/vue-query'
 
 definePageMeta({ middleware: 'auth' })
 
 const { t } = useI18n()
 const toast = useToast()
+const { $api } = useNuxtApp()
+const queryClient = useQueryClient()
 
 const activeSection = ref<TaskSettingsSectionId>('themes')
 const themeModalOpen = ref(false)
 const themeForm = ref<ThemeFormState>(createEmptyThemeForm())
+const groupModalOpen = ref(false)
+const groupForm = ref<GroupFormState>(createEmptyGroupForm())
+const editingGroupId = ref<number | null>(null)
+
+const isEditingGroup = computed(() => editingGroupId.value != null)
 
 const navItems: TaskSettingsNavItem[] = [
   { id: 'themes', labelKey: 'taskSettings.nav.themes', icon: 'i-lucide-palette' },
@@ -31,10 +54,40 @@ const navItems: TaskSettingsNavItem[] = [
 ]
 
 const { projects, projectsQuery, createProject, companyId } = useEnterpriseProjects()
+const { groups, groupsQuery } = useCatalogueGroups()
+const createGroup = useCreateGroup()
+const updateGroup = useUpdateGroup()
+
+const isGroupMutating = computed(
+  () => createGroup.isPending.value || updateGroup.isPending.value,
+)
 
 function openNewThemeModal() {
   themeForm.value = createEmptyThemeForm()
   themeModalOpen.value = true
+}
+
+function openNewGroupModal() {
+  editingGroupId.value = null
+  groupForm.value = createEmptyGroupForm()
+  groupModalOpen.value = true
+}
+
+async function openEditGroupModal(group: CatalogueGroup) {
+  editingGroupId.value = group.id
+  groupForm.value = createGroupFormFromCatalogue(group)
+  groupModalOpen.value = true
+
+  try {
+    const detail = await queryClient.fetchQuery({
+      queryKey: ['catalogues', 'groups', 'detail', group.id],
+      queryFn: () => $api<CatalogueGroupDetail>(`/api/catalogues/groups/${group.id}/`),
+    })
+    groupForm.value = createGroupFormFromDetail(detail)
+  }
+  catch {
+    // Prefill mínimo del listado; el toast de submit cubre fallos al guardar
+  }
 }
 
 async function onCreateTheme() {
@@ -66,6 +119,38 @@ async function onCreateTheme() {
   }
 }
 
+async function onSubmitGroup() {
+  const name = groupForm.value.name.trim()
+  const manager = groupForm.value.manager
+  if (!name || !groupForm.value.color || manager == null) {
+    return
+  }
+
+  const payload = {
+    name,
+    color: groupForm.value.color,
+    manager,
+    members: groupForm.value.members.filter(id => id !== manager),
+  }
+
+  try {
+    if (editingGroupId.value != null) {
+      await updateGroup.mutateAsync({
+        id: editingGroupId.value,
+        payload,
+      })
+    }
+    else {
+      await createGroup.mutateAsync(payload)
+    }
+    groupModalOpen.value = false
+    editingGroupId.value = null
+  }
+  catch {
+    // Toast de error lo manejan useCreateGroup / useUpdateGroup
+  }
+}
+
 useSeoMeta({
   title: () => t('taskSettings.title'),
 })
@@ -89,6 +174,15 @@ useSeoMeta({
           @new-theme="openNewThemeModal"
         />
 
+        <TaskSettingsGroupsPanel
+          v-else-if="activeSection === 'groups'"
+          :groups="groups"
+          :loading="groupsQuery.isPending.value"
+          :error="groupsQuery.isError.value"
+          @new-group="openNewGroupModal"
+          @edit="openEditGroupModal"
+        />
+
         <TaskSettingsPlaceholderPanel
           v-else
           :title="t(`taskSettings.nav.${activeSection}`)"
@@ -102,6 +196,14 @@ useSeoMeta({
       v-model:form="themeForm"
       :loading="createProject.isPending.value"
       @submit="onCreateTheme"
+    />
+
+    <TaskSettingsGroupModal
+      v-model:open="groupModalOpen"
+      v-model:form="groupForm"
+      :is-edit="isEditingGroup"
+      :loading="isGroupMutating"
+      @submit="onSubmitGroup"
     />
   </div>
 </template>
