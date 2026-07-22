@@ -3,10 +3,21 @@ import { useQuery } from '@tanstack/vue-query'
 import type { FormSubmitEvent } from '@nuxt/ui'
 import type { SelectItem } from '@nuxt/ui'
 import type { PaginatedResponse } from '~/shared/types/api.types'
-import type { NewTaskFormType, ProjectDropdown, TaskEffort, TaskGroupBy, TaskView, UserDropdown } from '~/features/tasks/types/task.types'
+import type {
+  CloseTaskProcessStatus,
+  NewTaskFormType,
+  ProjectDropdown,
+  ReviewDecisionStatus,
+  TaskEffort,
+  TaskGroupBy,
+  TaskView,
+  UserDropdown,
+} from '~/features/tasks/types/task.types'
 import { useCreateTask } from '~/features/tasks/composables/form/useCreateTask'
 import { useGroupsDropdown } from '~/features/tasks/composables/shared/useGroupsDropdown'
 import { useTaskDetail } from '~/features/tasks/composables/form/useTaskDetail'
+import TaskCloseProcessModal from '~/features/tasks/components/form/TaskCloseProcessModal.vue'
+import TaskReviewDecisionModal from '~/features/tasks/components/form/TaskReviewDecisionModal.vue'
 import TaskStartProcessModal from '~/features/tasks/components/form/TaskStartProcessModal.vue'
 import { extractResults } from '~/shared/utils/paginated.util'
 import {
@@ -47,18 +58,58 @@ const companyId = 1
 const formId = 'new-task-form'
 const submitError = ref('')
 const startProcessModalOpen = ref(false)
+const closeProcessModalOpen = ref(false)
+const closeProcessStatus = ref<CloseTaskProcessStatus>('in_review')
+const reviewDecisionModalOpen = ref(false)
+const reviewDecisionStatus = ref<ReviewDecisionStatus>('complete')
 /** Con taskId el slideover es detalle view-only (sin submit ni edición). */
 const isDetailView = computed(() => taskId.value != null)
 
 const { mutateAsync: createTask, isPending } = useCreateTask()
 const taskDetailQuery = useTaskDetail(() => (open.value ? taskId.value : null))
 
-/** En Kanban All + Pending: acción para iniciar proceso. */
-const showStartProcess = computed(() =>
+const isKanbanAllDetail = computed(() =>
   isDetailView.value
   && props.view === 'kanban'
-  && props.groupBy === 'all'
+  && props.groupBy === 'all',
+)
+
+/** En Kanban All + Pending: acción para iniciar proceso. */
+const showStartProcess = computed(() =>
+  isKanbanAllDetail.value
   && taskDetailQuery.data.value?.status === 'pending',
+)
+
+/** En Kanban All + In Progress: avanzar a in_review / complete. */
+const showCloseProcess = computed(() =>
+  isKanbanAllDetail.value
+  && taskDetailQuery.data.value?.status === 'wip',
+)
+
+/** Cierre múltiple: se detecta por type (y boolean de respaldo). */
+const isMultipleCloseTask = computed(() => {
+  const detail = taskDetailQuery.data.value
+  return detail?.type === 'multiple_close' || detail?.multiple_close === true
+})
+
+/** multiple_close solo permite enviar a revisión (no complete directo). */
+const showCompleteAction = computed(() =>
+  showCloseProcess.value
+  && !isMultipleCloseTask.value,
+)
+
+/**
+ * En Kanban All + In review: rechazar o completar.
+ * multiple_close solo permite rechazar (no complete).
+ */
+const showReviewDecision = computed(() =>
+  isKanbanAllDetail.value
+  && taskDetailQuery.data.value?.status === 'in_review',
+)
+
+const showReviewCompleteAction = computed(() =>
+  showReviewDecision.value
+  && !isMultipleCloseTask.value,
 )
 
 const state = reactive<NewTaskFormState>({
@@ -178,7 +229,25 @@ function openStartProcessModal() {
   startProcessModalOpen.value = true
 }
 
+function openCloseProcessModal(status: CloseTaskProcessStatus) {
+  closeProcessStatus.value = status
+  closeProcessModalOpen.value = true
+}
+
+function openReviewDecisionModal(status: ReviewDecisionStatus) {
+  reviewDecisionStatus.value = status
+  reviewDecisionModalOpen.value = true
+}
+
 function onProcessStarted() {
+  close()
+}
+
+function onProcessClosed() {
+  close()
+}
+
+function onReviewDecision() {
   close()
 }
 
@@ -668,6 +737,34 @@ watch(
           color="primary"
           @click="openStartProcessModal"
         />
+        <template v-else-if="showCloseProcess">
+          <UButton
+            :label="t('tasks.processClose.inReview')"
+            color="neutral"
+            variant="outline"
+            @click="openCloseProcessModal('in_review')"
+          />
+          <UButton
+            v-if="showCompleteAction"
+            :label="t('tasks.processClose.complete')"
+            color="primary"
+            @click="openCloseProcessModal('complete')"
+          />
+        </template>
+        <template v-else-if="showReviewDecision">
+          <UButton
+            :label="t('tasks.processReview.rejected')"
+            color="error"
+            variant="solid"
+            @click="openReviewDecisionModal('rejected')"
+          />
+          <UButton
+            v-if="showReviewCompleteAction"
+            :label="t('tasks.processReview.complete')"
+            color="primary"
+            @click="openReviewDecisionModal('complete')"
+          />
+        </template>
       </div>
     </template>
   </USlideover>
@@ -677,5 +774,21 @@ watch(
     v-model:open="startProcessModalOpen"
     :task-id="taskId"
     @success="onProcessStarted"
+  />
+
+  <TaskCloseProcessModal
+    v-if="taskId != null"
+    v-model:open="closeProcessModalOpen"
+    :task-id="taskId"
+    :target-status="closeProcessStatus"
+    @success="onProcessClosed"
+  />
+
+  <TaskReviewDecisionModal
+    v-if="taskId != null"
+    v-model:open="reviewDecisionModalOpen"
+    :task-id="taskId"
+    :target-status="reviewDecisionStatus"
+    @success="onReviewDecision"
   />
 </template>

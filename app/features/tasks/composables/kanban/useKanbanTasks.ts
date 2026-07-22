@@ -6,7 +6,6 @@ import { extractResults } from '~/shared/utils/paginated.util'
 /**
  * Server state del Kanban (groupBy = all) vía TanStack Query.
  *
- * NOTA: in_review y complete aún no tienen endpoint de lista.
  * Rechazada: skeleton mientras cargan counts; se oculta solo si count === 0.
  */
 export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) {
@@ -16,6 +15,8 @@ export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) 
   const counts = api.countsQuery<KanbanCounts>(scope, '/kanban/counts/')
   const pending = api.listQuery([...scope, 'pending'], '/kanban/pending/')
   const wip = api.listQuery([...scope, 'wip'], '/kanban/wip/')
+  const inReview = api.listQuery([...scope, 'in_review'], '/kanban/in_review/')
+  const complete = api.listQuery([...scope, 'complete'], '/kanban/complete/')
 
   const rejectedCount = computed(() => counts.data.value?.rejected ?? 0)
   const countsReady = computed(() => counts.isFetched.value)
@@ -52,10 +53,9 @@ export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) 
         labelKey: 'tasks.kanban.columns.inReview',
         color: '#f97316',
         count: totals?.in_review,
-        tasks: [],
-        loading: false,
-        error: false,
-        comingSoon: true,
+        tasks: extractResults(inReview.data.value),
+        loading: inReview.isPending.value,
+        error: inReview.isError.value,
       },
       {
         id: 'rejected',
@@ -71,15 +71,14 @@ export function useKanbanTasks(filters: MaybeRefOrGetter<TaskListFilters> = {}) 
         labelKey: 'tasks.kanban.columns.complete',
         color: '#28ceab',
         count: totals?.complete,
-        tasks: [],
-        loading: false,
-        error: false,
-        comingSoon: true,
+        tasks: extractResults(complete.data.value),
+        loading: complete.isPending.value,
+        error: complete.isError.value,
       },
     ]
 
     return allColumns.filter(column => column.id !== 'rejected' || showRejected.value)
   })
 
-  return { counts, pending, wip, rejected, columns }
+  return { counts, pending, wip, inReview, rejected, complete, columns }
 }

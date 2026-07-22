@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { useStartTaskProcess } from '~/features/tasks/composables/form/useStartTaskProcess'
+import type { CloseTaskProcessStatus } from '~/features/tasks/types/task.types'
+import { useCloseTaskProcess } from '~/features/tasks/composables/form/useCloseTaskProcess'
 
 const open = defineModel<boolean>('open', { default: false })
 
 const props = defineProps<{
   taskId: number
+  targetStatus: CloseTaskProcessStatus
 }>()
 
 const emit = defineEmits<{
@@ -12,11 +14,23 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const { mutateAsync: startProcess, isPending } = useStartTaskProcess()
+const { mutateAsync: closeProcess, isPending } = useCloseTaskProcess()
 
 const comment = ref('')
 // TODO: reactivar cuando Cloudinary esté listo
 // const images = ref<File[] | null | undefined>(null)
+
+const modalTitle = computed(() =>
+  props.targetStatus === 'complete'
+    ? t('tasks.processClose.modalTitleComplete')
+    : t('tasks.processClose.modalTitleInReview'),
+)
+
+const confirmLabel = computed(() =>
+  props.targetStatus === 'complete'
+    ? t('tasks.processClose.confirmComplete')
+    : t('tasks.processClose.confirmInReview'),
+)
 
 function reset() {
   comment.value = ''
@@ -38,8 +52,9 @@ async function onConfirm() {
   //     : []
 
   try {
-    await startProcess({
+    await closeProcess({
       task: props.taskId,
+      status: props.targetStatus,
       comment: comment.value.trim() || undefined,
       // images: files.length ? files : undefined,
     })
@@ -55,8 +70,8 @@ async function onConfirm() {
 <template>
   <UModal
     v-model:open="open"
-    :title="t('tasks.processStart.modalTitle')"
-    :description="t('tasks.processStart.modalDescription')"
+    :title="modalTitle"
+    :description="t('tasks.processClose.modalDescription')"
     :ui="{
       content: 'sm:max-w-lg',
       footer: 'justify-end',
@@ -65,12 +80,12 @@ async function onConfirm() {
     <template #body>
       <div class="space-y-4">
         <UFormField
-          :label="`${t('tasks.processStart.comment')} (${t('tasks.processStart.optional')})`"
+          :label="`${t('tasks.processClose.comment')} (${t('tasks.processClose.optional')})`"
           name="comment"
         >
           <UTextarea
             v-model="comment"
-            :placeholder="t('tasks.processStart.commentPlaceholder')"
+            :placeholder="t('tasks.processClose.commentPlaceholder')"
             :rows="3"
             class="w-full"
           />
@@ -78,15 +93,15 @@ async function onConfirm() {
 
         <!-- TODO: reactivar cuando Cloudinary esté listo
         <UFormField
-          :label="`${t('tasks.processStart.images')} (${t('tasks.processStart.optional')})`"
+          :label="`${t('tasks.processClose.images')} (${t('tasks.processClose.optional')})`"
           name="images"
         >
           <UFileUpload
             v-model="images"
             multiple
             accept="image/svg+xml,image/png,image/jpeg,.svg,.png,.jpg,.jpeg"
-            :label="t('tasks.processStart.dropLabel')"
-            :description="t('tasks.processStart.dropDescription')"
+            :label="t('tasks.processClose.dropLabel')"
+            :description="t('tasks.processClose.dropDescription')"
             class="w-full min-h-48"
           />
         </UFormField>
@@ -103,7 +118,7 @@ async function onConfirm() {
         @click="close()"
       />
       <UButton
-        :label="t('tasks.processStart.confirm')"
+        :label="confirmLabel"
         color="primary"
         :loading="isPending"
         :disabled="isPending"
