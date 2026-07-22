@@ -199,6 +199,27 @@ export interface StartTaskProcessPayload {
   images?: File[]
 }
 
+/** Destino al cerrar proceso vía POST /api/tasks/process/close/. */
+export type CloseTaskProcessStatus = 'in_review' | 'complete'
+
+/** Destino desde In review. */
+export type ReviewDecisionStatus = 'rejected' | 'complete'
+
+/** Payload de POST /api/tasks/process/close/. */
+export interface CloseTaskProcessPayload {
+  task: number
+  status: CloseTaskProcessStatus
+  comment?: string
+  images?: File[]
+}
+
+/** Payload de POST /api/tasks/process/reject/. */
+export interface RejectTaskProcessPayload {
+  task: number
+  comment?: string
+  images?: File[]
+}
+
 /** Payload local de mover una tarea entre columnas (API pendiente). */
 export interface KanbanTaskMove {
   taskId: number
