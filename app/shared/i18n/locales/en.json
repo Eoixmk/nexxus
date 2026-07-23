@@ -72,6 +72,13 @@
         "delayed": "Delayed",
         "critical": "Critical",
         "accepted": "Accepted"
+      },
+      "authorize": {
+        "label": "Authorize task",
+        "submit": "Authorize",
+        "successTitle": "Task authorized",
+        "successDescription": "Your authorization was recorded successfully.",
+        "errorTitle": "Could not authorize"
       }
     },
     "comingSoon": "Coming soon",

@@ -57,6 +57,12 @@ export interface TaskCloseApproval {
   closed_at: string | null
 }
 
+/** Respuesta de PATCH /api/tasks/close_approvals/:id/update/ */
+export interface AuthorizeCloseApprovalResponse {
+  closed: boolean
+  cancelled: boolean
+}
+
 export interface TaskProcessEntry {
   id: number
   status: string

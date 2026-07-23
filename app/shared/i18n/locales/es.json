@@ -72,6 +72,13 @@
         "delayed": "Retraso",
         "critical": "Crítico",
         "accepted": "Aceptadas"
+      },
+      "authorize": {
+        "label": "Autorizar tarea",
+        "submit": "Autorizar",
+        "successTitle": "Tarea autorizada",
+        "successDescription": "Tu autorización se registró correctamente.",
+        "errorTitle": "No se pudo autorizar"
       }
     },
     "comingSoon": "Próximamente",

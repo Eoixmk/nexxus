@@ -6,13 +6,16 @@ import TaskNewTaskSlideover from '~/features/tasks/components/form/TaskNewTaskSl
 import TaskViewSwitcher from '~/features/tasks/components/workspace/TaskViewSwitcher.vue'
 import type { TaskView } from '~/features/tasks/types/task.types'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     title: string
     excludeViews?: TaskView[]
+    /** Slideover en modo autorización (pending-approval). */
+    authorizeMode?: boolean
   }>(),
   {
     excludeViews: () => [],
+    authorizeMode: false,
   },
 )
 
@@ -126,6 +129,7 @@ const {
       v-model:task-id="selectedTaskId"
       :view="view"
       :group-by="groupBy"
+      :authorize-mode="props.authorizeMode"
     />
   </div>
 </template>

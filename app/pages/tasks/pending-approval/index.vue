@@ -21,6 +21,7 @@ useSeoMeta({
   <TaskWorkspaceShell
     :title="t('tasks.toUpdate.title')"
     :exclude-views="['calendar']"
+    authorize-mode
   >
     <template #default="{ view, groupBy, filters, selectedTaskId, openTask }">
       <ToUpdateListView

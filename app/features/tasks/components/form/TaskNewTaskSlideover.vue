@@ -13,6 +13,7 @@ import type {
   TaskView,
   UserDropdown,
 } from '~/features/tasks/types/task.types'
+import { useAuthorizeCloseApproval } from '~/features/tasks/composables/form/useAuthorizeCloseApproval'
 import { useCreateTask } from '~/features/tasks/composables/form/useCreateTask'
 import { useGroupsDropdown } from '~/features/tasks/composables/shared/useGroupsDropdown'
 import { useTaskDetail } from '~/features/tasks/composables/form/useTaskDetail'
@@ -23,6 +24,7 @@ import { extractResults } from '~/shared/utils/paginated.util'
 import {
   buildCreateTaskPayload,
   defaultTaskReviewers,
+  findPendingCloseApproval,
   taskDetailToFormInput,
   type NewTaskFormInput,
 } from '~/features/tasks/utils/form/task-form.util'
@@ -43,10 +45,13 @@ const props = withDefaults(
   defineProps<{
     view?: TaskView
     groupBy?: TaskGroupBy
+    /** Modo autorización desde pending-approval. */
+    authorizeMode?: boolean
   }>(),
   {
     view: 'list',
     groupBy: 'all',
+    authorizeMode: false,
   },
 )
 
@@ -75,7 +80,25 @@ const minDueDate = computed(() => {
 })
 
 const { mutateAsync: createTask, isPending } = useCreateTask()
+const {
+  mutateAsync: authorizeCloseApproval,
+  isPending: isAuthorizePending,
+} = useAuthorizeCloseApproval()
 const taskDetailQuery = useTaskDetail(() => (open.value ? taskId.value : null))
+
+/** Aprobación pendiente del usuario logueado en close_approvals. */
+const pendingApprovalForUser = computed(() =>
+  findPendingCloseApproval(
+    taskDetailQuery.data.value?.close_approvals,
+    user.value?.id,
+  ),
+)
+
+const showAuthorize = computed(() =>
+  props.authorizeMode
+  && isDetailView.value
+  && pendingApprovalForUser.value != null,
+)
 
 /** Detalle con acciones de proceso (Kanban All o Calendario). */
 const showProcessActions = computed(() =>
@@ -263,6 +286,20 @@ function onReviewDecision() {
   close()
 }
 
+async function onAuthorize() {
+  const approval = pendingApprovalForUser.value
+  if (!approval) {
+    return
+  }
+  try {
+    await authorizeCloseApproval(approval.id)
+    close()
+  }
+  catch {
+    // Toast de error lo maneja useAuthorizeCloseApproval.
+  }
+}
+
 function validationMessage(code: string): string {
   const messages: Record<string, string> = {
     name_required: t('tasks.form.validation.nameRequired'),
@@ -366,6 +403,14 @@ watch(
         <UBadge
           :label="t(`tasks.types.${state.type}`)"
           color="neutral"
+          variant="subtle"
+          size="sm"
+          class="uppercase tracking-wide shrink-0"
+        />
+        <UBadge
+          v-if="props.authorizeMode && isDetailView"
+          :label="t('tasks.toUpdate.authorize.label')"
+          color="warning"
           variant="subtle"
           size="sm"
           class="uppercase tracking-wide shrink-0"
@@ -732,7 +777,7 @@ watch(
           :label="isDetailView ? t('tasks.form.close') : t('tasks.form.cancel')"
           color="neutral"
           variant="ghost"
-          :disabled="isPending"
+          :disabled="isPending || isAuthorizePending"
           @click="close"
         />
         <UButton
@@ -743,6 +788,14 @@ watch(
           :form="formId"
           :loading="isPending"
           :disabled="isPending"
+        />
+        <UButton
+          v-else-if="showAuthorize"
+          :label="t('tasks.toUpdate.authorize.submit')"
+          color="warning"
+          :loading="isAuthorizePending"
+          :disabled="isAuthorizePending"
+          @click="onAuthorize"
         />
         <UButton
           v-else-if="showStartProcess"

@@ -2,6 +2,7 @@ import type {
   ApiTaskPriority,
   CreateTaskPayload,
   NewTaskFormType,
+  TaskCloseApproval,
   TaskDetail,
   TaskEffort,
 } from '~/features/tasks/types/task.types'
@@ -143,4 +144,15 @@ export function buildCreateTaskPayload(
 
 export function defaultTaskReviewers(currentUserId?: number): number[] {
   return currentUserId != null ? [currentUserId] : []
+}
+
+/** Close approval pendiente del usuario logueado (profile match y aún no cerrado). */
+export function findPendingCloseApproval(
+  approvals: TaskCloseApproval[] | undefined,
+  userId: number | undefined,
+): TaskCloseApproval | undefined {
+  if (userId == null || !approvals?.length) {
+    return undefined
+  }
+  return approvals.find(approval => approval.profile === userId && !approval.closed)
 }
