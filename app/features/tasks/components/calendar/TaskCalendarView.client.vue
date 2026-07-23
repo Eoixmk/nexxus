@@ -9,6 +9,7 @@ import type {
   DatesSetArg,
   DayCellMountArg,
   DayHeaderContentArg,
+  EventClickArg,
   EventInput,
   EventMountArg,
   MoreLinkArg,
@@ -27,6 +28,11 @@ const props = defineProps<{
   filters: TaskListFilters
   phase?: TaskCalendarPhase
   groupBy?: TaskGroupBy
+  selectedTaskId?: number | null
+}>()
+
+const emit = defineEmits<{
+  select: [taskId: number]
 }>()
 
 const phase = computed(() => props.phase ?? 'start')
@@ -285,6 +291,14 @@ function mountWeekToggle(arg: DayCellMountArg) {
   syncWeekToggleButtons()
 }
 
+function handleEventClick(arg: EventClickArg) {
+  const taskId = Number(arg.event.extendedProps.taskId ?? arg.event.id)
+  if (!Number.isFinite(taskId) || taskId <= 0) {
+    return
+  }
+  emit('select', taskId)
+}
+
 const calendarOptions = reactive<CalendarOptions>({
   plugins: [dayGridPlugin, interactionPlugin],
   initialView: 'dayGridMonth',
@@ -297,6 +311,7 @@ const calendarOptions = reactive<CalendarOptions>({
   dayMaxEventRows: COLLAPSED_EVENT_ROWS,
   moreLinkText: 'más...',
   moreLinkClick: handleMoreLinkClick,
+  eventClick: handleEventClick,
   // Carriles estables: primero por inicio, luego las más largas arriba.
   eventOrder: 'start,-duration,title',
   eventOrderStrict: true,
@@ -706,6 +721,7 @@ watch(
   border-radius: 0.375rem;
   background: var(--fc-event-bg-color);
   box-shadow: none;
+  cursor: pointer;
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 

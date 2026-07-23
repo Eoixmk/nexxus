@@ -98,6 +98,8 @@ useSeoMeta({
         :filters="filters"
         :phase="calendarPhase"
         :group-by="groupBy"
+        :selected-task-id="selectedTaskId"
+        @select="openTask"
       />
 
       <div

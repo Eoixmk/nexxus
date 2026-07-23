@@ -77,21 +77,24 @@ const minDueDate = computed(() => {
 const { mutateAsync: createTask, isPending } = useCreateTask()
 const taskDetailQuery = useTaskDetail(() => (open.value ? taskId.value : null))
 
-const isKanbanAllDetail = computed(() =>
+/** Detalle con acciones de proceso (Kanban All o Calendario). */
+const showProcessActions = computed(() =>
   isDetailView.value
-  && props.view === 'kanban'
-  && props.groupBy === 'all',
+  && (
+    (props.view === 'kanban' && props.groupBy === 'all')
+    || props.view === 'calendar'
+  ),
 )
 
-/** En Kanban All + Pending: acción para iniciar proceso. */
+/** Pending: acción para iniciar proceso. */
 const showStartProcess = computed(() =>
-  isKanbanAllDetail.value
+  showProcessActions.value
   && taskDetailQuery.data.value?.status === 'pending',
 )
 
-/** En Kanban All + In Progress: avanzar a in_review / complete. */
+/** In Progress: avanzar a in_review / complete. */
 const showCloseProcess = computed(() =>
-  isKanbanAllDetail.value
+  showProcessActions.value
   && taskDetailQuery.data.value?.status === 'wip',
 )
 
@@ -108,11 +111,11 @@ const showCompleteAction = computed(() =>
 )
 
 /**
- * En Kanban All + In review: rechazar o completar.
+ * In review: rechazar o completar.
  * multiple_close solo permite rechazar (no complete).
  */
 const showReviewDecision = computed(() =>
-  isKanbanAllDetail.value
+  showProcessActions.value
   && taskDetailQuery.data.value?.status === 'in_review',
 )
 

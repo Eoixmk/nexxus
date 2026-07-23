@@ -46,6 +46,7 @@ export function taskToStartCalendarEvent(task: Task, color?: string): EventInput
     title: task.short_description,
     start,
     allDay: true,
+    extendedProps: { taskId: task.id },
     ...eventColors(task, color),
   }
 }
@@ -74,6 +75,7 @@ export function taskToProcessCalendarEvent(task: Task, color?: string): EventInp
     start,
     end: endExclusive,
     allDay: true,
+    extendedProps: { taskId: task.id },
     ...eventColors(task, color),
   }
 }
@@ -93,6 +95,7 @@ export function taskToCloseCalendarEvent(task: Task, color?: string): EventInput
     title: task.short_description,
     start: closeDate,
     allDay: true,
+    extendedProps: { taskId: task.id },
     ...eventColors(task, color),
   }
 }
@@ -159,7 +162,11 @@ export function coloredTasksToCalendarEvents(
         events.push({
           ...event,
           id: `${source.id}-${task.id}`,
-          extendedProps: { sourceId: source.id },
+          extendedProps: {
+            ...(event.extendedProps ?? {}),
+            taskId: task.id,
+            sourceId: source.id,
+          },
         })
       }
     }
