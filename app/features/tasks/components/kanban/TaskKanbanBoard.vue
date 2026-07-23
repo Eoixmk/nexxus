@@ -2,16 +2,29 @@
 import type { KanbanColumn, KanbanTaskMove } from '~/features/tasks/types/task.types'
 import TaskKanbanColumn from '~/features/tasks/components/kanban/TaskKanbanColumn.vue'
 
-const props = defineProps<{
-  columns: KanbanColumn[]
-  selectedTaskId?: number | null
-  loading?: boolean
-  error?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    columns: KanbanColumn[]
+    selectedTaskId?: number | null
+    loading?: boolean
+    error?: boolean
+    /**
+     * Kanban All: no mueve en cliente; emite `move` para abrir el modal de proceso.
+     * Otras vistas: move local cosmético.
+     */
+    confirmBeforeMove?: boolean
+  }>(),
+  {
+    selectedTaskId: null,
+    loading: false,
+    error: false,
+    confirmBeforeMove: false,
+  },
+)
 
 const emit = defineEmits<{
   select: [taskId: number]
-  /** Emitido al soltar; listo para cablear la API de movimiento. */
+  /** Drop entre columnas; en All dispara el flujo de proceso. */
   move: [payload: KanbanTaskMove]
 }>()
 
@@ -35,12 +48,19 @@ function onDragOverColumn(columnId: string | number) {
 }
 
 function onDropTask(payload: KanbanTaskMove) {
-  const moved = moveTask(payload)
   draggingTaskId.value = null
   dropTargetId.value = null
 
+  if (props.confirmBeforeMove) {
+    if (payload.fromColumnId === payload.toColumnId) {
+      return
+    }
+    emit('move', payload)
+    return
+  }
+
+  const moved = moveTask(payload)
   if (moved) {
-    // TODO: llamar al endpoint de movimiento cuando esté disponible.
     emit('move', payload)
   }
 }

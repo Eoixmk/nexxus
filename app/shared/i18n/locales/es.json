@@ -124,7 +124,9 @@
         "complete": "Completado"
       },
       "dropHere": "Suelta aquí",
-      "dropHint": "Puedes soltar tareas aquí"
+      "dropHint": "Puedes soltar tareas aquí",
+      "moveNotAllowedTitle": "Movimiento no permitido",
+      "moveNotAllowedDescription": "Esa transición de estado no está disponible para esta tarea."
     },
     "processStart": {
       "submit": "En Proceso",

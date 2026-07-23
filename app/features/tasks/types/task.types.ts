@@ -226,7 +226,11 @@ export interface RejectTaskProcessPayload {
   images?: File[]
 }
 
-/** Payload local de mover una tarea entre columnas (API pendiente). */
+/**
+ * Payload de drop entre columnas Kanban.
+ * En groupBy=all dispara el flujo de proceso (modal + start/close/reject).
+ * En otras vistas solo mueve en cliente.
+ */
 export interface KanbanTaskMove {
   taskId: number
   fromColumnId: string | number

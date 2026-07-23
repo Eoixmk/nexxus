@@ -124,7 +124,9 @@
         "complete": "Complete"
       },
       "dropHere": "Drop here",
-      "dropHint": "You can drop tasks here"
+      "dropHint": "You can drop tasks here",
+      "moveNotAllowedTitle": "Move not allowed",
+      "moveNotAllowedDescription": "That status transition is not available for this task."
     },
     "processStart": {
       "submit": "In Progress",

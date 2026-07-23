@@ -9,9 +9,8 @@ function cloneColumns(columns: KanbanColumn[]): KanbanColumn[] {
 }
 
 /**
- * Estado local del tablero Kanban para drag & drop.
- * Sincroniza con las columnas del servidor y aplica movimientos solo en cliente
- * hasta que exista el endpoint de cambio de estado/columna.
+ * Estado local del tablero Kanban para drag & drop cosmético
+ * (Due / Topic / Group). En All el move lo confirma el modal de proceso.
  */
 export function useKanbanBoardState(columns: MaybeRefOrGetter<KanbanColumn[]>) {
   const localColumns = ref<KanbanColumn[]>([])
