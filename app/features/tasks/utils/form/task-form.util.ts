@@ -72,9 +72,16 @@ export function resolveTaskPriority(urgent: boolean, effort?: TaskEffort): ApiTa
   return 'normal'
 }
 
+/**
+ * Convierte YYYY-MM-DD a ISO fin de ese día en UTC.
+ * Evita el desfase +1 día de `toISOString()` sobre hora local (p. ej. UTC-4).
+ */
 function dateInputToLimitISO(date: string): string {
-  const localEnd = new Date(`${date}T23:59:59`)
-  return localEnd.toISOString()
+  const [year, month, day] = date.split('-').map(Number)
+  if (!year || !month || !day) {
+    throw new Error('due_date_required')
+  }
+  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59)).toISOString()
 }
 
 function normalizeTaskReviewers(reviewers: number[], currentUserId?: number): number[] {
