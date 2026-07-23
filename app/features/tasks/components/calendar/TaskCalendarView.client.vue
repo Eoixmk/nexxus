@@ -15,9 +15,10 @@ import type {
 } from '@fullcalendar/core'
 import { useCalendarTasks } from '~/features/tasks/composables/calendar/useCalendarTasks'
 import { useCalendarProjectTasks } from '~/features/tasks/composables/calendar/useCalendarProjectTasks'
+import { useCalendarAssignedTasks } from '~/features/tasks/composables/calendar/useCalendarAssignedTasks'
 import type { TaskCalendarPhase, TaskGroupBy, TaskListFilters } from '~/features/tasks/types/task.types'
 import { extractResults } from '~/shared/utils/paginated.util'
-import { projectTasksToCalendarEvents, tasksToCalendarEvents } from '~/features/tasks/utils/calendar/task-calendar.util'
+import { coloredTasksToCalendarEvents, tasksToCalendarEvents } from '~/features/tasks/utils/calendar/task-calendar.util'
 
 const COLLAPSED_EVENT_ROWS = 3
 const PHASE_TRANSITION_MS = 180
@@ -29,10 +30,14 @@ const props = defineProps<{
 }>()
 
 const phase = computed(() => props.phase ?? 'start')
-/** Modo "por tema": las tareas se agrupan y colorean por proyecto. */
+/** Modo "por tema": tareas coloreadas por proyecto. */
 const projectMode = computed(() => props.groupBy === 'topic')
-/** Proyectos ocultos desde la leyenda inferior. */
-const hiddenProjectIds = ref(new Set<number>())
+/** Modo "por grupo": tareas coloreadas por usuario asignado. */
+const groupMode = computed(() => props.groupBy === 'group')
+/** Algún modo con leyenda de chips (tema o grupo). */
+const legendMode = computed(() => projectMode.value || groupMode.value)
+/** Fuentes ocultas desde la leyenda (proyectos o usuarios). */
+const hiddenSourceIds = ref(new Set<number>())
 
 const now = new Date()
 const visibleMonth = ref({
@@ -44,7 +49,7 @@ const { tasks } = useCalendarTasks(
   visibleMonth,
   () => props.filters,
   phase,
-  () => !projectMode.value,
+  () => !legendMode.value,
 )
 
 const {
@@ -53,34 +58,60 @@ const {
   isError: projectsError,
 } = useCalendarProjectTasks(() => props.filters, () => projectMode.value)
 
-const visibleProjects = computed(() =>
-  calendarProjects.value.filter(project => !hiddenProjectIds.value.has(project.id)),
+const {
+  assignees: calendarAssignees,
+  isPending: assigneesPending,
+  isError: assigneesError,
+} = useCalendarAssignedTasks(() => props.filters, () => groupMode.value)
+
+const legendItems = computed(() =>
+  projectMode.value
+    ? calendarProjects.value
+    : groupMode.value
+      ? calendarAssignees.value
+      : [],
+)
+
+const visibleSources = computed(() =>
+  legendItems.value.filter(item => !hiddenSourceIds.value.has(item.id)),
 )
 
 const sourceEvents = computed<EventInput[]>(() => {
-  if (projectMode.value) {
-    return projectTasksToCalendarEvents(visibleProjects.value, phase.value)
+  if (legendMode.value) {
+    return coloredTasksToCalendarEvents(visibleSources.value, phase.value)
   }
   return tasksToCalendarEvents(extractResults(tasks.data.value), phase.value)
 })
 
-const isPending = computed(() =>
-  projectMode.value ? projectsPending.value : tasks.isPending.value,
-)
+const isPending = computed(() => {
+  if (projectMode.value) {
+    return projectsPending.value
+  }
+  if (groupMode.value) {
+    return assigneesPending.value
+  }
+  return tasks.isPending.value
+})
 
-const isError = computed(() =>
-  projectMode.value ? projectsError.value : tasks.isError.value,
-)
+const isError = computed(() => {
+  if (projectMode.value) {
+    return projectsError.value
+  }
+  if (groupMode.value) {
+    return assigneesError.value
+  }
+  return tasks.isError.value
+})
 
-function toggleProject(id: number) {
-  const next = new Set(hiddenProjectIds.value)
+function toggleSource(id: number) {
+  const next = new Set(hiddenSourceIds.value)
   if (next.has(id)) {
     next.delete(id)
   }
   else {
     next.add(id)
   }
-  hiddenProjectIds.value = next
+  hiddenSourceIds.value = next
 }
 
 const calendarRef = ref<{ getApi: () => CalendarApi } | null>(null)
@@ -322,15 +353,18 @@ async function applyCalendarEvents(events: EventInput[], animate: boolean) {
   syncWeekToggleButtons()
 }
 
+// Al cambiar el agrupador, reiniciamos chips ocultos.
+watch(() => props.groupBy, () => {
+  hiddenSourceIds.value = new Set()
+})
+
 // Al cambiar fase o modo reiniciamos semanas expandidas y recalculamos filas.
-watch([phase, projectMode], () => {
+watch([phase, legendMode], () => {
   expandedWeeks.value = new Set()
   applyDayMaxEventRows()
 })
 
-// Fuente única de eventos: calendario global o agrupado por proyecto.
-// applyCalendarEvents solo anima cuando ya había eventos (evita animar el
-// primer render, pero sí las transiciones de fase / toggles de proyecto).
+// Fuente única de eventos: calendario global o agrupado (tema/grupo).
 watch(
   sourceEvents,
   (events) => {
@@ -369,37 +403,35 @@ watch(
         No se pudieron cargar las tareas del calendario.
       </p>
 
+      <Transition name="calendar-legend">
+        <div
+          v-if="legendMode && legendItems.length > 0"
+          class="flex flex-wrap items-center gap-2 px-4 pt-3 pb-1"
+        >
+          <UBadge
+            v-for="item in legendItems"
+            :key="item.id"
+            as="button"
+            type="button"
+            variant="solid"
+            size="md"
+            class="cursor-pointer border-0 font-medium text-white transition-opacity hover:opacity-90"
+            :class="hiddenSourceIds.has(item.id) ? 'opacity-40 line-through' : ''"
+            :style="{ backgroundColor: item.color }"
+            :aria-pressed="!hiddenSourceIds.has(item.id)"
+            @click="toggleSource(item.id)"
+          >
+            {{ item.name }}
+          </UBadge>
+        </div>
+      </Transition>
+
       <FullCalendar
         ref="calendarRef"
         :options="calendarOptions"
         @dates-set="syncFromDatesSet"
       />
     </div>
-
-    <Transition name="calendar-legend">
-      <div
-        v-if="projectMode && calendarProjects.length > 0"
-        class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 px-4"
-      >
-        <button
-          v-for="project in calendarProjects"
-          :key="project.id"
-          type="button"
-          class="inline-flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-          :class="hiddenProjectIds.has(project.id) ? 'opacity-40' : 'text-foreground'"
-          :aria-pressed="!hiddenProjectIds.has(project.id)"
-          @click="toggleProject(project.id)"
-        >
-          <span
-            class="h-2.5 w-2.5 shrink-0 rounded-full"
-            :style="{ backgroundColor: project.color }"
-          />
-          <span :class="{ 'line-through': hiddenProjectIds.has(project.id) }">
-            {{ project.name }}
-          </span>
-        </button>
-      </div>
-    </Transition>
   </div>
 </template>
 

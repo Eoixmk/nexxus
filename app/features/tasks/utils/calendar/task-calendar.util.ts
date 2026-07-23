@@ -21,39 +21,13 @@ function nextDay(dateOnly: string): string {
   return `${year}-${month}-${day}`
 }
 
-function hexToRgba(hex: string, alpha: number): string {
-  const normalized = hex.replace('#', '')
-  if (normalized.length !== 6) {
-    return `rgba(40, 206, 171, ${alpha})`
-  }
-
-  const r = Number.parseInt(normalized.slice(0, 2), 16)
-  const g = Number.parseInt(normalized.slice(2, 4), 16)
-  const b = Number.parseInt(normalized.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
-}
-
-function darkenHex(hex: string, amount = 0.45): string {
-  const normalized = hex.replace('#', '')
-  if (normalized.length !== 6) {
-    return '#0d7a66'
-  }
-
-  const channels = [0, 2, 4].map((offset) => {
-    const value = Number.parseInt(normalized.slice(offset, offset + 2), 16)
-    return Math.max(0, Math.round(value * (1 - amount)))
-  })
-
-  return `#${channels.map(channel => channel.toString(16).padStart(2, '0')).join('')}`
-}
-
 /** `color` fuerza el color (modo por tema); si no, usa el de la tarea. */
 function eventColors(task: Task, color?: string) {
   const resolved = color ?? taskBarColor(task)
   return {
-    backgroundColor: hexToRgba(resolved, 0.22),
+    backgroundColor: resolved,
     borderColor: resolved,
-    textColor: darkenHex(resolved),
+    textColor: '#ffffff',
   }
 }
 
@@ -156,35 +130,48 @@ export function tasksToCalendarEvents(
   return sortEvents(events)
 }
 
-/** Proyecto con sus tareas y color asignado (modo "por tema"). */
-export interface CalendarProjectEvents {
+/** Fuente coloreada (proyecto o asignado) con sus tareas. */
+export interface CalendarColoredSource {
   id: number
   color: string
   tasks: Task[]
 }
 
+/** @deprecated Preferir `CalendarColoredSource`. */
+export type CalendarProjectEvents = CalendarColoredSource
+
 /**
- * Modo "por tema": cada proyecto aporta sus tareas con su color asignado.
- * Se guarda `projectId` en extendedProps para poder filtrar por proyecto.
+ * Agrupa tareas por fuente (proyecto / asignado) con color fijo.
+ * El id del evento es compuesto (`sourceId-taskId`) para evitar colisiones
+ * cuando la misma tarea aparece en más de un grupo.
  */
-export function projectTasksToCalendarEvents(
-  projects: CalendarProjectEvents[],
+export function coloredTasksToCalendarEvents(
+  sources: CalendarColoredSource[],
   phase: TaskCalendarPhase = 'start',
 ): EventInput[] {
   const mapper = phaseMapper(phase)
   const events: EventInput[] = []
 
-  for (const project of projects) {
-    for (const task of project.tasks) {
-      const event = mapper(task, project.color)
+  for (const source of sources) {
+    for (const task of source.tasks) {
+      const event = mapper(task, source.color)
       if (event) {
         events.push({
           ...event,
-          extendedProps: { projectId: project.id },
+          id: `${source.id}-${task.id}`,
+          extendedProps: { sourceId: source.id },
         })
       }
     }
   }
 
   return sortEvents(events)
+}
+
+/** Alias: modo "por tema". */
+export function projectTasksToCalendarEvents(
+  projects: CalendarColoredSource[],
+  phase: TaskCalendarPhase = 'start',
+): EventInput[] {
+  return coloredTasksToCalendarEvents(projects, phase)
 }
