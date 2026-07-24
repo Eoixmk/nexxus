@@ -100,11 +100,12 @@ const showAuthorize = computed(() =>
   && pendingApprovalForUser.value != null,
 )
 
-/** Detalle con acciones de proceso (Kanban All o Calendario). */
+/** Detalle con acciones de proceso (List/Kanban All o Calendario). */
 const showProcessActions = computed(() =>
   isDetailView.value
   && (
     (props.view === 'kanban' && props.groupBy === 'all')
+    || (props.view === 'list' && props.groupBy === 'all')
     || props.view === 'calendar'
   ),
 )

@@ -30,6 +30,7 @@ const { counts, urgent, today, upcoming } = useTasks(() => props.filters)
       :loading="urgent.isPending.value"
       :error="urgent.isError.value"
       :selected-task-id="selectedTaskId"
+      show-status
       @select="$emit('select', $event)"
     />
 
@@ -41,6 +42,7 @@ const { counts, urgent, today, upcoming } = useTasks(() => props.filters)
       :loading="today.isPending.value"
       :error="today.isError.value"
       :selected-task-id="selectedTaskId"
+      show-status
       @select="$emit('select', $event)"
     />
 
@@ -52,6 +54,7 @@ const { counts, urgent, today, upcoming } = useTasks(() => props.filters)
       :loading="upcoming.isPending.value"
       :error="upcoming.isError.value"
       :selected-task-id="selectedTaskId"
+      show-status
       @select="$emit('select', $event)"
     />
   </div>

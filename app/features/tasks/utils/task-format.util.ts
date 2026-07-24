@@ -22,7 +22,7 @@ export function taskAssigneeColor(assignee: TaskAssignee): string {
   return ASSIGNEE_AVATAR_COLORS[Math.abs(assignee.id) % ASSIGNEE_AVATAR_COLORS.length]!
 }
 
-type BadgeColor = 'error' | 'warning' | 'neutral'
+type BadgeColor = 'error' | 'warning' | 'neutral' | 'primary' | 'success'
 
 interface TaskTypeMeta {
   labelKey: string
@@ -30,6 +30,11 @@ interface TaskTypeMeta {
 }
 
 interface TaskPriorityMeta {
+  labelKey: string
+  color: BadgeColor
+}
+
+interface TaskStatusMeta {
   labelKey: string
   color: BadgeColor
 }
@@ -65,6 +70,19 @@ export function taskTypeMeta(type: string): TaskTypeMeta {
 /** Devuelve la meta de prioridad, o `null` cuando no debe mostrarse chip (normal). */
 export function taskPriorityMeta(priority: string): TaskPriorityMeta | null {
   return PRIORITY_META[priority] ?? null
+}
+
+const STATUS_META: Record<string, TaskStatusMeta> = {
+  pending: { labelKey: 'tasks.kanban.columns.pending', color: 'neutral' },
+  wip: { labelKey: 'tasks.kanban.columns.wip', color: 'primary' },
+  in_review: { labelKey: 'tasks.kanban.columns.inReview', color: 'warning' },
+  rejected: { labelKey: 'tasks.kanban.columns.rejected', color: 'error' },
+  complete: { labelKey: 'tasks.kanban.columns.complete', color: 'success' },
+}
+
+/** Meta de status alineada a columnas Kanban All. */
+export function taskStatusMeta(status: string): TaskStatusMeta {
+  return STATUS_META[status] ?? { labelKey: 'tasks.status.unknown', color: 'neutral' }
 }
 
 export function taskBarColor(task: Task): string {

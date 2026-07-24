@@ -12,12 +12,15 @@ withDefaults(
     loading?: boolean
     error?: boolean
     selectedTaskId?: number | null
+    /** Badge de status en cada fila (List All). */
+    showStatus?: boolean
   }>(),
   {
     count: undefined,
     loading: false,
     error: false,
     selectedTaskId: null,
+    showStatus: false,
   },
 )
 
@@ -73,6 +76,7 @@ const { t } = useI18n()
           :key="task.id"
           :task="task"
           :selected="selectedTaskId === task.id"
+          :show-status="showStatus"
           @select="emit('select', $event)"
         />
       </div>

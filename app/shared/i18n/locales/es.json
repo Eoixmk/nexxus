@@ -190,6 +190,9 @@
       "high": "Alta",
       "normal": "Normal"
     },
+    "status": {
+      "unknown": "Estado desconocido"
+    },
     "types": {
       "manual": "Manual",
       "trigger": "Trigger",

@@ -6,9 +6,12 @@ const props = withDefaults(
   defineProps<{
     task: Task
     selected?: boolean
+    /** Badge de status (List All). */
+    showStatus?: boolean
   }>(),
   {
     selected: false,
+    showStatus: false,
   },
 )
 
@@ -20,6 +23,7 @@ const { t } = useI18n()
 const {
   typeMeta,
   priorityMeta,
+  statusMeta,
   barColor,
   requiresAttention,
   assignees,
@@ -74,6 +78,13 @@ function onSelect() {
       </span>
 
       <div class="flex items-center gap-1.5 shrink-0">
+        <UBadge
+          v-if="showStatus"
+          :label="t(statusMeta.labelKey)"
+          :color="statusMeta.color"
+          variant="soft"
+          size="sm"
+        />
         <UBadge
           :icon="typeMeta.icon"
           :label="t(typeMeta.labelKey)"

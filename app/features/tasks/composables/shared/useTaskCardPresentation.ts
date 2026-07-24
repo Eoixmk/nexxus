@@ -3,7 +3,7 @@ import type { Task } from '~/features/tasks/types/task.types'
 
 /**
  * Presentación compartida de una tarea en lista y kanban
- * (tipo, prioridad, barra, due label, atención).
+ * (tipo, prioridad, status, barra, due label, atención).
  */
 export function useTaskCardPresentation(task: MaybeRefOrGetter<Task>) {
   const { t, locale } = useI18n()
@@ -12,6 +12,7 @@ export function useTaskCardPresentation(task: MaybeRefOrGetter<Task>) {
 
   const typeMeta = computed(() => taskTypeMeta(current.value.type))
   const priorityMeta = computed(() => taskPriorityMeta(current.value.priority))
+  const statusMeta = computed(() => taskStatusMeta(current.value.status))
   const barColor = computed(() => taskBarColor(current.value))
   const requiresAttention = computed(() => taskRequiresAttention(current.value))
   const assignees = computed(() => current.value.assigned_to ?? [])
@@ -42,6 +43,7 @@ export function useTaskCardPresentation(task: MaybeRefOrGetter<Task>) {
   return {
     typeMeta,
     priorityMeta,
+    statusMeta,
     barColor,
     requiresAttention,
     assignees,
