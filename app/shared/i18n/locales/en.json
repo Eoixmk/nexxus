@@ -273,7 +273,7 @@
     "messenger": {
       "title": "Activity and chat",
       "messageCount": "{n} messages",
-      "placeholder": "Write a message or update",
+      "placeholder": "Write a message",
       "send": "Send message",
       "empty": "No messages yet. Be the first to write.",
       "loadError": "Could not load messages",

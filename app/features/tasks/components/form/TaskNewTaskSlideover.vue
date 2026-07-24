@@ -385,7 +385,7 @@ watch(
 const slideoverUi = computed(() => {
   if (isDetailView.value) {
     return {
-      content: 'w-full max-w-md sm:max-w-[72rem] p-0 overflow-hidden',
+      content: 'w-full max-w-md sm:max-w-[60rem] p-0 overflow-hidden',
       header: 'hidden',
       body: 'p-0 flex-1 min-h-0 overflow-hidden',
       footer: 'hidden',
@@ -431,11 +431,15 @@ const slideoverUi = computed(() => {
 
     <template #body>
       <div class="flex h-full min-h-0 w-full">
-        <TaskMessenger
+        <div
           v-if="isDetailView && taskId != null"
-          :task-id="taskId"
-          class="hidden h-full w-full sm:flex sm:w-xl sm:shrink-0 sm:border-r sm:border-border"
-        />
+          class="hidden h-full sm:block sm:w-80 sm:shrink-0"
+        >
+          <TaskMessenger
+            :task-id="taskId"
+            class="h-full"
+          />
+        </div>
 
         <div class="flex min-h-0 min-w-0 flex-1 flex-col">
           <div

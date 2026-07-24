@@ -273,7 +273,7 @@
     "messenger": {
       "title": "Actividad y chat",
       "messageCount": "{n} mensajes",
-      "placeholder": "Escribe un mensaje o actualización",
+      "placeholder": "Escribe un mensaje",
       "send": "Enviar mensaje",
       "empty": "Aún no hay mensajes. Sé el primero en escribir.",
       "loadError": "No se pudieron cargar los mensajes",
