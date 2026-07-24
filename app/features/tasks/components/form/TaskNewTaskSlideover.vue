@@ -18,6 +18,7 @@ import { useCreateTask } from '~/features/tasks/composables/form/useCreateTask'
 import { useGroupsDropdown } from '~/features/tasks/composables/shared/useGroupsDropdown'
 import { useTaskDetail } from '~/features/tasks/composables/form/useTaskDetail'
 import TaskCloseProcessModal from '~/features/tasks/components/form/TaskCloseProcessModal.vue'
+import TaskMessenger from '~/features/tasks/components/form/TaskMessenger.vue'
 import TaskReviewDecisionModal from '~/features/tasks/components/form/TaskReviewDecisionModal.vue'
 import TaskStartProcessModal from '~/features/tasks/components/form/TaskStartProcessModal.vue'
 import { extractResults } from '~/shared/utils/paginated.util'
@@ -380,26 +381,43 @@ watch(
     applyFormInput(taskDetailToFormInput(detail))
   },
 )
+
+const slideoverUi = computed(() => {
+  if (isDetailView.value) {
+    return {
+      content: 'w-full max-w-md sm:max-w-[72rem] p-0 overflow-hidden',
+      header: 'hidden',
+      body: 'p-0 flex-1 min-h-0 overflow-hidden',
+      footer: 'hidden',
+    }
+  }
+
+  return {
+    content: 'w-full max-w-md sm:max-w-xl',
+    body: 'p-0',
+    footer: 'border-t border-border',
+  }
+})
 </script>
 
 <template>
   <USlideover
     v-model:open="open"
     side="right"
-    :ui="{
-      content: 'w-full max-w-md sm:max-w-xl',
-      body: 'p-0',
-      footer: 'border-t border-border',
-    }"
+    :close="isDetailView ? false : true"
+    :ui="slideoverUi"
   >
-    <template #header>
+    <template
+      v-if="!isDetailView"
+      #header
+    >
       <div class="flex items-center gap-2 min-w-0">
         <UIcon
-          :name="isDetailView ? 'i-lucide-file-text' : 'i-lucide-plus'"
+          name="i-lucide-plus"
           class="h-5 w-5 text-foreground shrink-0"
         />
         <h2 class="text-base font-semibold text-foreground truncate">
-          {{ isDetailView ? t('tasks.taskDetail') : t('tasks.newTask') }}
+          {{ t('tasks.newTask') }}
         </h2>
         <UBadge
           :label="t(`tasks.types.${state.type}`)"
@@ -408,52 +426,91 @@ watch(
           size="sm"
           class="uppercase tracking-wide shrink-0"
         />
-        <UBadge
-          v-if="props.authorizeMode && isDetailView"
-          :label="t('tasks.toUpdate.authorize.label')"
-          color="warning"
-          variant="subtle"
-          size="sm"
-          class="uppercase tracking-wide shrink-0"
-        />
       </div>
     </template>
 
     <template #body>
-      <UForm
-        :id="formId"
-        :state="state"
-        class="flex flex-col h-full"
-        @submit="onSubmit"
-      >
-        <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+      <div class="flex h-full min-h-0 w-full">
+        <TaskMessenger
+          v-if="isDetailView && taskId != null"
+          :task-id="taskId"
+          class="hidden h-full w-full sm:flex sm:w-xl sm:shrink-0 sm:border-r sm:border-border"
+        />
+
+        <div class="flex min-h-0 min-w-0 flex-1 flex-col">
           <div
-            v-if="isDetailView && taskDetailQuery.isPending.value"
-            class="space-y-3"
+            v-if="isDetailView"
+            class="flex shrink-0 items-center justify-between gap-2 border-b border-border px-4 py-3"
           >
-            <USkeleton class="h-10 w-full" />
-            <USkeleton class="h-24 w-full" />
-            <USkeleton class="h-10 w-full" />
-            <USkeleton class="h-10 w-2/3" />
+            <div class="flex items-center gap-2 min-w-0">
+              <UIcon
+                name="i-lucide-file-text"
+                class="h-5 w-5 text-foreground shrink-0"
+              />
+              <h2 class="text-base font-semibold text-foreground truncate">
+                {{ t('tasks.taskDetail') }}
+              </h2>
+              <UBadge
+                :label="t(`tasks.types.${state.type}`)"
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                class="uppercase tracking-wide shrink-0"
+              />
+              <UBadge
+                v-if="props.authorizeMode"
+                :label="t('tasks.toUpdate.authorize.label')"
+                color="warning"
+                variant="subtle"
+                size="sm"
+                class="uppercase tracking-wide shrink-0"
+              />
+            </div>
+            <UButton
+              icon="i-lucide-x"
+              color="neutral"
+              variant="ghost"
+              size="md"
+              square
+              :aria-label="t('tasks.form.close')"
+              @click="close"
+            />
           </div>
 
-          <UAlert
-            v-else-if="isDetailView && taskDetailQuery.isError.value"
-            color="error"
-            variant="subtle"
-            :title="t('tasks.loadError')"
-            class="mb-2"
-          />
+          <UForm
+            :id="formId"
+            :state="state"
+            class="flex min-h-0 flex-1 flex-col"
+            @submit="onSubmit"
+          >
+            <div class="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+              <div
+                v-if="isDetailView && taskDetailQuery.isPending.value"
+                class="space-y-3"
+              >
+                <USkeleton class="h-10 w-full" />
+                <USkeleton class="h-24 w-full" />
+                <USkeleton class="h-10 w-full" />
+                <USkeleton class="h-10 w-2/3" />
+              </div>
 
-          <UAlert
-            v-if="submitError"
-            color="error"
-            variant="subtle"
-            :title="submitError"
-            class="mb-2"
-          />
+              <UAlert
+                v-else-if="isDetailView && taskDetailQuery.isError.value"
+                color="error"
+                variant="subtle"
+                :title="t('tasks.loadError')"
+                class="mb-2"
+              />
 
-          <template v-if="!(isDetailView && (taskDetailQuery.isPending.value || taskDetailQuery.isError.value))">
+              <UAlert
+                v-if="submitError"
+                color="error"
+                variant="subtle"
+                :title="submitError"
+                class="mb-2"
+              />
+
+              <template v-if="!isDetailView || taskDetailQuery.data.value">
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {{ t('tasks.form.taskType') }}
@@ -767,22 +824,81 @@ watch(
               />
             </div>
           </div>
-          </template>
+              </template>
+            </div>
+          </UForm>
+
+          <div
+            v-if="isDetailView"
+            class="flex shrink-0 items-center justify-end gap-2 border-t border-border px-4 py-3"
+          >
+            <UButton
+              :label="t('tasks.form.close')"
+              color="neutral"
+              variant="ghost"
+              :disabled="isPending || isAuthorizePending"
+              @click="close"
+            />
+            <UButton
+              v-if="showAuthorize"
+              :label="t('tasks.toUpdate.authorize.submit')"
+              color="warning"
+              :loading="isAuthorizePending"
+              :disabled="isAuthorizePending"
+              @click="onAuthorize"
+            />
+            <UButton
+              v-else-if="showStartProcess"
+              :label="t('tasks.processStart.submit')"
+              color="primary"
+              @click="openStartProcessModal"
+            />
+            <template v-else-if="showCloseProcess">
+              <UButton
+                :label="t('tasks.processClose.inReview')"
+                color="neutral"
+                variant="outline"
+                @click="openCloseProcessModal('in_review')"
+              />
+              <UButton
+                v-if="showCompleteAction"
+                :label="t('tasks.processClose.complete')"
+                color="primary"
+                @click="openCloseProcessModal('complete')"
+              />
+            </template>
+            <template v-else-if="showReviewDecision">
+              <UButton
+                :label="t('tasks.processReview.rejected')"
+                color="error"
+                variant="solid"
+                @click="openReviewDecisionModal('rejected')"
+              />
+              <UButton
+                v-if="showReviewCompleteAction"
+                :label="t('tasks.processReview.complete')"
+                color="primary"
+                @click="openReviewDecisionModal('complete')"
+              />
+            </template>
+          </div>
         </div>
-      </UForm>
+      </div>
     </template>
 
-    <template #footer>
+    <template
+      v-if="!isDetailView"
+      #footer
+    >
       <div class="flex items-center justify-end gap-2 w-full">
         <UButton
-          :label="isDetailView ? t('tasks.form.close') : t('tasks.form.cancel')"
+          :label="t('tasks.form.cancel')"
           color="neutral"
           variant="ghost"
-          :disabled="isPending || isAuthorizePending"
+          :disabled="isPending"
           @click="close"
         />
         <UButton
-          v-if="!isDetailView"
           :label="t('tasks.form.create')"
           color="primary"
           type="submit"
@@ -790,48 +906,6 @@ watch(
           :loading="isPending"
           :disabled="isPending"
         />
-        <UButton
-          v-else-if="showAuthorize"
-          :label="t('tasks.toUpdate.authorize.submit')"
-          color="warning"
-          :loading="isAuthorizePending"
-          :disabled="isAuthorizePending"
-          @click="onAuthorize"
-        />
-        <UButton
-          v-else-if="showStartProcess"
-          :label="t('tasks.processStart.submit')"
-          color="primary"
-          @click="openStartProcessModal"
-        />
-        <template v-else-if="showCloseProcess">
-          <UButton
-            :label="t('tasks.processClose.inReview')"
-            color="neutral"
-            variant="outline"
-            @click="openCloseProcessModal('in_review')"
-          />
-          <UButton
-            v-if="showCompleteAction"
-            :label="t('tasks.processClose.complete')"
-            color="primary"
-            @click="openCloseProcessModal('complete')"
-          />
-        </template>
-        <template v-else-if="showReviewDecision">
-          <UButton
-            :label="t('tasks.processReview.rejected')"
-            color="error"
-            variant="solid"
-            @click="openReviewDecisionModal('rejected')"
-          />
-          <UButton
-            v-if="showReviewCompleteAction"
-            :label="t('tasks.processReview.complete')"
-            color="primary"
-            @click="openReviewDecisionModal('complete')"
-          />
-        </template>
       </div>
     </template>
   </USlideover>

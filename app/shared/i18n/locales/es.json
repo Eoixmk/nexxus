@@ -269,6 +269,17 @@
         "schedule": "Agendar cita y confirmar asistencia",
         "evidence": "Solicitar evidencia fotográfica"
       }
+    },
+    "messenger": {
+      "title": "Actividad y chat",
+      "messageCount": "{n} mensajes",
+      "placeholder": "Escribe un mensaje o actualización",
+      "send": "Enviar mensaje",
+      "empty": "Aún no hay mensajes. Sé el primero en escribir.",
+      "loadError": "No se pudieron cargar los mensajes",
+      "sendSuccessTitle": "Mensaje enviado",
+      "sendSuccessDescription": "Tu mensaje se publicó en el chat de la tarea.",
+      "sendErrorTitle": "No se pudo enviar el mensaje"
     }
   },
   "settings": {

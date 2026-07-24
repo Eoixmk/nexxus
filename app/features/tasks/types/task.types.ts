@@ -226,8 +226,7 @@ export interface RejectTaskProcessPayload {
   images?: File[]
 }
 
-/**
- * Payload de drop entre columnas Kanban.
+/** Payload de drop entre columnas Kanban.
  * En groupBy=all dispara el flujo de proceso (modal + start/close/reject).
  * En otras vistas solo mueve en cliente.
  */
@@ -235,4 +234,21 @@ export interface KanbanTaskMove {
   taskId: number
   fromColumnId: string | number
   toColumnId: string | number
+}
+
+/** Mensaje del chat de una tarea. */
+export interface TaskMessage {
+  id: number
+  task: number
+  profile: number
+  profile_username: string
+  content: string
+  read: boolean
+  created_at: string
+}
+
+/** Payload de POST /api/tasks/messages/create/. */
+export interface CreateTaskMessagePayload {
+  task: number
+  content: string
 }

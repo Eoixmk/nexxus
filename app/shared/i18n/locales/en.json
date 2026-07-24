@@ -269,6 +269,17 @@
         "schedule": "Schedule appointment and confirm attendance",
         "evidence": "Request photographic evidence"
       }
+    },
+    "messenger": {
+      "title": "Activity and chat",
+      "messageCount": "{n} messages",
+      "placeholder": "Write a message or update",
+      "send": "Send message",
+      "empty": "No messages yet. Be the first to write.",
+      "loadError": "Could not load messages",
+      "sendSuccessTitle": "Message sent",
+      "sendSuccessDescription": "Your message was posted in the task chat.",
+      "sendErrorTitle": "Could not send the message"
     }
   },
   "settings": {
